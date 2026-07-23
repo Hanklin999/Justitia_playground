@@ -4,8 +4,8 @@ import AuthStatus from "@/components/auth-status";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "朱斯提亞練功房",
-  description: "簡單快速，找到題目",
+  title: "Justitia's playground",
+  description: "司律陪考資料庫",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -13,7 +13,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="zh-Hant">
       <body>
         <header className="site-header">
-          <Link className="brand" href="/">朱斯提亞練功房</Link>
+          <Link className="brand" href="/">Justitia's playground</Link>
           <nav>
             <Link href="/practice">開始練習</Link>
             <Link href="/history">歷史紀錄</Link>

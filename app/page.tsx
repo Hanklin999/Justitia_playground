@@ -4,8 +4,8 @@ export default function HomePage() {
   return (
     <section className="hero container">
       <div className="eyebrow">Justitia_playground</div>
-      <h1>朱斯提亞練功房</h1>
-      <p className="lead">簡單快速，找到題目。用正式試卷時長，完成一次真正可追蹤的司律一試模擬。</p>
+      <h1>Justitia's playground</h1>
+      <p className="lead">司律陪考資料庫</p>
       <div className="actions">
         <Link className="button primary" href="/practice">選擇試卷</Link>
         <Link className="button secondary" href="/login">Email 登入</Link>

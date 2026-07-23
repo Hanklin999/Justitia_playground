@@ -1,7 +1,3 @@
--- Justitia_playground repeat-safe setup v2
--- Safe to run after a partially failed setup or to rerun after successful setup.
--- Existing user attempts and answers are preserved.
-
 -- ===== 0001_initial_schema.sql =====
 -- Justitia_playground initial schema
 -- Run on a fresh Supabase project through SQL Editor or Supabase CLI.
@@ -13,36 +9,17 @@ revoke all on schema private from public;
 revoke all on schema private from anon;
 revoke all on schema private from authenticated;
 
-do $$
-begin
-  if not exists (
-    select 1
-    from pg_type t
-    join pg_namespace n on n.oid = t.typnamespace
-    where n.nspname = 'public' and t.typname = 'attempt_status'
-  ) then
-    create type public.attempt_status as enum ('in_progress', 'submitted', 'timed_out');
-  end if;
+create type public.attempt_status as enum ('in_progress', 'submitted', 'timed_out');
+create type public.submit_reason as enum ('manual', 'timeout');
 
-  if not exists (
-    select 1
-    from pg_type t
-    join pg_namespace n on n.oid = t.typnamespace
-    where n.nspname = 'public' and t.typname = 'submit_reason'
-  ) then
-    create type public.submit_reason as enum ('manual', 'timeout');
-  end if;
-end
-$$;
-
-create table if not exists public.profiles (
+create table public.profiles (
   user_id uuid primary key references auth.users(id) on delete cascade,
   display_name text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.exam_papers (
+create table public.exam_papers (
   paper_id text primary key,
   exam_year_roc smallint not null,
   exam_year_ad smallint not null,
@@ -65,7 +42,7 @@ create table if not exists public.exam_papers (
 );
 
 -- Public question content intentionally excludes the official answer.
-create table if not exists public.questions (
+create table public.questions (
   question_id text primary key,
   paper_id text not null references public.exam_papers(paper_id) on delete cascade,
   question_number smallint not null,
@@ -95,7 +72,7 @@ create table if not exists public.questions (
 );
 
 -- Answer keys are stored outside the exposed public schema.
-create table if not exists private.question_answer_keys (
+create table private.question_answer_keys (
   question_id text primary key references public.questions(question_id) on delete cascade,
   original_answer char(1) check (original_answer in ('A', 'B', 'C', 'D')),
   final_answer char(1) not null check (final_answer in ('A', 'B', 'C', 'D')),
@@ -104,7 +81,7 @@ create table if not exists private.question_answer_keys (
   updated_at timestamptz not null default now()
 );
 
-create table if not exists public.exam_attempts (
+create table public.exam_attempts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   paper_id text not null references public.exam_papers(paper_id),
@@ -132,7 +109,7 @@ create table if not exists public.exam_attempts (
 comment on column public.exam_attempts.duration_minutes is
   'Snapshot of the official paper duration when the attempt starts.';
 
-create table if not exists public.attempt_questions (
+create table public.attempt_questions (
   attempt_id uuid not null references public.exam_attempts(id) on delete cascade,
   question_id text not null references public.questions(question_id),
   display_order smallint not null,
@@ -140,7 +117,7 @@ create table if not exists public.attempt_questions (
   unique (attempt_id, display_order)
 );
 
-create table if not exists public.attempt_answers (
+create table public.attempt_answers (
   attempt_id uuid not null,
   question_id text not null,
   selected_answer char(1) not null check (selected_answer in ('A', 'B', 'C', 'D')),
@@ -151,23 +128,23 @@ create table if not exists public.attempt_answers (
     on delete cascade
 );
 
-create table if not exists public.question_bookmarks (
+create table public.question_bookmarks (
   user_id uuid not null references auth.users(id) on delete cascade,
   question_id text not null references public.questions(question_id) on delete cascade,
   created_at timestamptz not null default now(),
   primary key (user_id, question_id)
 );
 
-create index if not exists exam_papers_year_order_idx
+create index exam_papers_year_order_idx
   on public.exam_papers (exam_year_roc desc, paper_order);
-create index if not exists questions_paper_number_idx
+create index questions_paper_number_idx
   on public.questions (paper_id, question_number);
-create index if not exists exam_attempts_user_started_idx
+create index exam_attempts_user_started_idx
   on public.exam_attempts (user_id, started_at desc);
-create index if not exists exam_attempts_expiry_idx
+create index exam_attempts_expiry_idx
   on public.exam_attempts (status, expires_at)
   where status = 'in_progress';
-create index if not exists attempt_answers_attempt_idx
+create index attempt_answers_attempt_idx
   on public.attempt_answers (attempt_id);
 
 -- Create a profile row automatically when a Magic Link user is created.
@@ -185,7 +162,6 @@ begin
 end;
 $$;
 
-drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
@@ -684,33 +660,27 @@ alter table public.attempt_questions enable row level security;
 alter table public.attempt_answers enable row level security;
 alter table public.question_bookmarks enable row level security;
 
-drop policy if exists "published papers are readable" on public.exam_papers;
 create policy "published papers are readable"
 on public.exam_papers for select
 using (is_published = true);
 
-drop policy if exists "authenticated users read published questions" on public.questions;
 create policy "authenticated users read published questions"
 on public.questions for select to authenticated
 using (is_published = true);
 
-drop policy if exists "users read own profile" on public.profiles;
 create policy "users read own profile"
 on public.profiles for select to authenticated
 using (auth.uid() = user_id);
 
-drop policy if exists "users update own profile" on public.profiles;
 create policy "users update own profile"
 on public.profiles for update to authenticated
 using (auth.uid() = user_id)
 with check (auth.uid() = user_id);
 
-drop policy if exists "users read own attempts" on public.exam_attempts;
 create policy "users read own attempts"
 on public.exam_attempts for select to authenticated
 using (auth.uid() = user_id);
 
-drop policy if exists "users read own attempt questions" on public.attempt_questions;
 create policy "users read own attempt questions"
 on public.attempt_questions for select to authenticated
 using (exists (
@@ -718,7 +688,6 @@ using (exists (
   where a.id = attempt_id and a.user_id = auth.uid()
 ));
 
-drop policy if exists "users read own answers" on public.attempt_answers;
 create policy "users read own answers"
 on public.attempt_answers for select to authenticated
 using (exists (
@@ -726,17 +695,14 @@ using (exists (
   where a.id = attempt_id and a.user_id = auth.uid()
 ));
 
-drop policy if exists "users read own bookmarks" on public.question_bookmarks;
 create policy "users read own bookmarks"
 on public.question_bookmarks for select to authenticated
 using (auth.uid() = user_id);
 
-drop policy if exists "users create own bookmarks" on public.question_bookmarks;
 create policy "users create own bookmarks"
 on public.question_bookmarks for insert to authenticated
 with check (auth.uid() = user_id);
 
-drop policy if exists "users delete own bookmarks" on public.question_bookmarks;
 create policy "users delete own bookmarks"
 on public.question_bookmarks for delete to authenticated
 using (auth.uid() = user_id);
@@ -2253,22 +2219,6 @@ end;
 $$;
 
 revoke all on function private.finalize_expired_attempts() from public, anon, authenticated;
-
-do $$
-declare
-  v_job_id bigint;
-begin
-  select jobid into v_job_id
-  from cron.job
-  where jobname = 'justitia-finalize-expired-attempts'
-  order by jobid desc
-  limit 1;
-
-  if v_job_id is not null then
-    perform cron.unschedule(v_job_id);
-  end if;
-end
-$$;
 
 select cron.schedule(
   'justitia-finalize-expired-attempts',
