@@ -1,0 +1,9 @@
+﻿paper_id,expected_question_count,extracted_question_count,answer_count,missing_question_text,missing_options,missing_answers,status
+113-2301,75,75,75,0,0,0,pass
+113-3301,80,80,80,0,0,0,pass
+113-4301,70,70,70,0,0,0,pass
+113-1301,75,75,75,0,0,0,pass
+114-2301,75,75,75,0,0,0,pass
+114-3301,80,80,80,0,0,0,pass
+114-4301,70,70,70,0,0,0,pass
+114-1301,75,75,75,0,0,0,pass

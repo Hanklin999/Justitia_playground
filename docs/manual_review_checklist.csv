@@ -1,0 +1,8 @@
+﻿check_id,check_description,priority,resulting_review_status
+text_answer_alignment,題號、題幹、四個選項與官方答案對齊,must,verified_text_answer
+special_characters,圈選符號、數字、括號與法條符號無亂碼,must,verified_text_answer
+page_boundary,跨頁題目沒有缺字或誤接下一題,must,verified_text_answer
+answer_revision,是否有答案更正、複數答案或送分,must before publish,verified_official_answer
+primary_subject,主要科目,later,tagged_subject
+chapter_topic,章節與主要考點,later,tagged_topic
+law_refs,主要法條,later,tagged_law

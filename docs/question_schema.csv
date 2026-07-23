@@ -1,0 +1,43 @@
+﻿field_name,data_type,required_in_v1,source,description,example
+question_id,text,yes,generated,唯一題目鍵,114-2301-001
+exam_year_roc,smallint,yes,manifest,民國年度,114
+exam_year_ad,smallint,yes,manifest,西元年度,2025
+exam_code,text,yes,manifest,考選部考試代碼,114110
+exam_name,text,yes,manifest,完整考試名稱,114年司法官及律師第一試
+exam_stage,text,yes,manifest,考試階段,第一試
+candidate_scope,text,yes,manifest,適用類科,司法官及律師
+paper_id,text,yes,generated,年度＋官方試卷代號,114-2301
+paper_order,smallint,yes,manifest,正式作答順序,1
+paper_code,text,yes,PDF/manifest,官方試題代號,2301
+paper_group,text,yes,manifest,綜合法學（一）或（二）,綜合法學(一)
+paper_title,text,yes,manifest,完整試卷名稱,綜合法學(一)（憲法、行政法…）
+included_subjects,text,yes,manifest,試卷含括科目，| 分隔,憲法|行政法|國際公法|國際私法
+duration_minutes,smallint,yes,manifest/PDF,正式考試時長；attempt 需快照保存,90
+expected_question_count,smallint,yes,manifest/PDF,官方題數,75
+points_per_question,numeric,yes,manifest/PDF,每題配分,2.0
+max_score,numeric,yes,generated,單卷滿分,150
+question_number,smallint,yes,question PDF,卷內題號,1
+question_type,text,yes,constant,第一版固定單選,single_choice
+question_text,text,yes,question PDF,題幹,關於…何者錯誤？
+option_a,text,yes,question PDF,選項 A,…
+option_b,text,yes,question PDF,選項 B,…
+option_c,text,yes,question PDF,選項 C,…
+option_d,text,yes,question PDF,選項 D,…
+correct_answer,char(1),yes,answer PDF,官方答案,A
+official_answer_status,text,yes,constant/review,答案狀態,official_standard
+source_question_url,text,yes,manifest,官方題目網址,https://wwwq.moex.gov.tw/…
+source_answer_url,text,yes,manifest,官方答案網址,https://wwwq.moex.gov.tw/…
+source_question_pdf,text,yes,manifest,本機題目 PDF 路徑,data/raw/114/…pdf
+source_answer_pdf,text,yes,manifest,本機答案 PDF 路徑,data/raw/114/…pdf
+source_page_start,smallint,yes,parser,題目起始頁,1
+source_page_end,smallint,yes,parser,題目結束頁,1
+extraction_status,text,yes,parser,機器解析結果,parsed
+review_status,text,yes,manual workflow,人工複核狀態,pending_manual_review
+subject_primary,text,later,manual tagging,主要科目,行政法
+subject_secondary,text,later,manual tagging,次要科目，| 分隔,憲法
+chapter,text,later,manual tagging,章節,行政處分
+topic_primary,text,later,manual tagging,主要考點,行政處分附款
+topic_secondary,text,later,manual tagging,次要考點，| 分隔,信賴保護
+law_refs,text,later,manual tagging,法規條號，| 分隔,行政程序法§93
+tags,text,later,manual tagging,搜尋標籤，| 分隔,實務見解|易錯
+notes,text,optional,manual review,疑義、舊法、修正紀錄,待確認修法
