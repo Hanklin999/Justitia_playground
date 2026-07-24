@@ -515,3 +515,97 @@ button:disabled { cursor: not-allowed; background: #e6ebf2 !important; color: #7
   .modal-actions { flex-direction: column-reverse; }
   .modal-actions .button { width: 100%; }
 }
+
+/* v3.12.0 pacing coach, confidence, diagnosis, spaced review and attempt deletion */
+.exam-header-tools { display: flex; align-items: center; gap: 12px; }
+.pace-toggle { border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: 8px 12px; background: transparent; color: var(--white); font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+.pace-toggle.active { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.7); }
+.pace-coach { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; align-items: center; padding: 13px 20px; border-bottom: 1px solid var(--line); background: #eef9f3; color: #145c38; }
+.pace-coach.watch { background: #fff9e7; color: #765000; }
+.pace-coach.behind { background: #fff0f0; color: #932525; }
+.pace-coach > div { display: grid; gap: 2px; }
+.pace-coach span { font-size: 11px; font-weight: 800; opacity: .75; }
+.pace-coach strong { font-size: 15px; }
+.pace-coach p { grid-column: 1 / -1; margin: 2px 0 0; font-size: 12px; font-weight: 700; }
+
+.question-text { font-size: clamp(15px, 1.15vw, 17px); line-height: 1.72; }
+.answer-option .option-copy { font-size: clamp(17px, 1.3vw, 19px); line-height: 1.65; }
+
+.confidence-panel { margin-top: 18px; padding: 15px; border: 1px solid var(--line); border-radius: 13px; background: var(--blue-050); display: grid; gap: 12px; }
+.confidence-panel > div:first-child { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.confidence-panel > div:first-child span { color: var(--muted); font-size: 12px; }
+.confidence-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+.confidence-buttons button { display: grid; gap: 2px; border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--white); color: var(--text); cursor: pointer; text-align: left; }
+.confidence-buttons button.active { border-color: var(--blue-700); background: var(--blue-100); color: var(--blue-950); box-shadow: inset 0 0 0 1px var(--blue-700); }
+.confidence-buttons button:disabled { cursor: not-allowed; opacity: .45; }
+.confidence-buttons small { color: var(--muted); }
+
+.pacing-report { margin: 28px 0; border: 1px solid var(--line); border-radius: 18px; padding: 22px; background: var(--white); box-shadow: var(--shadow); }
+.pacing-report .section-heading > span { color: var(--muted); font-size: 12px; }
+.pacing-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 17px; }
+.pacing-grid article { display: grid; gap: 5px; border-radius: 12px; padding: 14px; background: var(--blue-050); border: 1px solid var(--line); }
+.pacing-grid article span, .pacing-grid article small { color: var(--muted); }
+.pacing-grid article em { color: var(--blue-800); font-style: normal; font-weight: 800; }
+.pacing-insight-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+.pacing-insight-grid article { border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.pacing-insight-grid p { margin: 7px 0 0; font-size: 13px; line-height: 1.5; }
+.pacing-insight-grid small { display: block; margin-top: 7px; color: var(--muted); }
+.slow-question-list { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
+.slow-question-list > strong { margin-right: 4px; }
+.slow-question-list a { border-radius: 999px; padding: 6px 9px; background: #f3f5f8; color: var(--blue-800); font-size: 12px; font-weight: 700; }
+
+.error-diagnosis-card { display: grid; gap: 12px; margin-top: 16px; padding: 15px; border: 1px solid #efdca6; border-radius: 13px; background: #fffdf7; }
+.error-diagnosis-card > div:first-child { display: grid; gap: 3px; }
+.error-diagnosis-card > div:first-child span { color: var(--muted); font-size: 12px; }
+.error-diagnosis-card > label { display: grid; gap: 6px; max-width: 360px; }
+.error-diagnosis-card select { border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--white); font: inherit; }
+.secondary-reason-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.secondary-reason-grid label { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 7px 10px; background: var(--white); font-size: 13px; }
+.spaced-review-callout { margin: 24px 0; display: flex; justify-content: space-between; gap: 18px; align-items: center; padding: 18px; border-radius: 15px; border: 1px solid #bcdac9; background: #eef9f3; }
+.spaced-review-callout > div { display: grid; gap: 4px; }
+.spaced-review-callout span { color: #35634c; font-size: 13px; }
+
+.history-card-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+.danger-modal { border: 2px solid #efb7b7; }
+.warning-icon.danger { background: #ffe4e4; color: var(--red-700); }
+.button.danger-button { background: var(--red-700); color: var(--white); border-color: var(--red-700); }
+.button.danger-button:hover { filter: brightness(.93); }
+
+.review-dashboard { max-width: 980px; }
+.review-hero-card { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 24px 0; }
+.review-hero-card > div { display: flex; align-items: baseline; gap: 6px; padding: 20px; border-radius: 15px; border: 1px solid var(--line); background: var(--white); box-shadow: var(--shadow); }
+.review-hero-card span { color: var(--muted); font-size: 13px; }
+.review-hero-card strong { color: var(--blue-950); font-size: 35px; }
+.review-hero-card small { color: var(--muted); }
+.review-hero-card .review-next-date { font-size: 20px; }
+.due-subject-section { margin: 26px 0; }
+.due-subject-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.due-subject-grid article { display: flex; justify-content: space-between; gap: 10px; padding: 13px; border-radius: 11px; background: var(--blue-050); border: 1px solid var(--line); }
+.review-start-card { display: grid; grid-template-columns: minmax(0, 1fr) 180px auto; gap: 18px; align-items: end; padding: 22px; border: 1px solid var(--line); border-radius: 17px; background: var(--white); box-shadow: var(--shadow); }
+.review-start-card h2 { margin: 0 0 6px; }
+.review-start-card p { margin: 0; color: var(--muted); }
+.review-start-card label { display: grid; gap: 6px; }
+.review-start-card label span { color: var(--muted); font-size: 12px; font-weight: 700; }
+.review-start-card select { border: 1px solid var(--line); border-radius: 10px; padding: 11px; background: var(--white); font: inherit; }
+
+@media (max-width: 980px) {
+  .pacing-grid, .pacing-insight-grid, .due-subject-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pace-coach { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .review-start-card { grid-template-columns: 1fr 180px; }
+  .review-start-card .button { grid-column: 1 / -1; }
+}
+
+@media (max-width: 700px) {
+  .exam-header-tools { align-items: flex-end; flex-direction: column-reverse; }
+  .pace-coach, .pacing-grid, .pacing-insight-grid, .review-hero-card, .due-subject-grid, .review-start-card { grid-template-columns: 1fr; }
+  .confidence-buttons { grid-template-columns: 1fr; }
+  .confidence-panel > div:first-child, .spaced-review-callout { align-items: flex-start; flex-direction: column; }
+  .review-start-card .button { grid-column: auto; width: 100%; }
+  .history-card-actions { justify-content: flex-start; }
+}
+.learning-insights-section { margin: 26px 0; }
+.learning-insight-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.learning-insight-grid article { display: grid; gap: 8px; padding: 16px; border: 1px solid var(--line); border-radius: 13px; background: var(--white); }
+.learning-insight-grid p { display: flex; justify-content: space-between; gap: 10px; margin: 0; color: var(--muted); font-size: 13px; }
+.learning-insight-grid p span { color: var(--blue-950); font-weight: 800; }
+@media (max-width: 700px) { .learning-insight-grid { grid-template-columns: 1fr; } }

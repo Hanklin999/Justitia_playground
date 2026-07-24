@@ -4,9 +4,14 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
-import type { AnswerChoice, AttemptPayload } from "@/lib/types";
+import type { AnswerChoice, AttemptPayload, ConfidenceLevel } from "@/lib/types";
 
 const allChoices: AnswerChoice[] = ["A", "B", "C", "D", "E"];
+const confidenceOptions: Array<{ value: ConfidenceLevel; label: string; hint: string }> = [
+  { value: "confident", label: "確定", hint: "我能說明理由" },
+  { value: "unsure", label: "不確定", hint: "在兩個選項間猶豫" },
+  { value: "guess", label: "純猜", hint: "沒有把握" },
+];
 
 function formatSeconds(totalSeconds: number) {
   const safe = Math.max(0, totalSeconds);
@@ -31,17 +36,22 @@ export default function ExamPage() {
   const [payload, setPayload] = useState<AttemptPayload | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [confidences, setConfidences] = useState<Record<string, ConfidenceLevel | null>>({});
   const [stars, setStars] = useState<Record<string, boolean>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [activeElapsedSeconds, setActiveElapsedSeconds] = useState(0);
+  const [paceCoachEnabled, setPaceCoachEnabled] = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [annotationState, setAnnotationState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [confidenceState, setConfidenceState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const autoSubmitStarted = useRef(false);
   const trackedQuestionRef = useRef<string | null>(null);
   const trackedAtRef = useRef(Date.now());
+  const pageVisibleRef = useRef(true);
 
   const isReviewAttempt = payload?.attempt.attempt_mode === "wrong_review";
 
@@ -60,7 +70,10 @@ export default function ExamPage() {
 
   const flushQuestionTime = useCallback(async () => {
     const questionId = trackedQuestionRef.current;
-    if (!questionId) return;
+    if (!questionId || !pageVisibleRef.current) {
+      trackedAtRef.current = Date.now();
+      return;
+    }
     const seconds = Math.min(300, Math.floor((Date.now() - trackedAtRef.current) / 1000));
     trackedAtRef.current = Date.now();
     if (seconds < 1) return;
@@ -94,8 +107,11 @@ export default function ExamPage() {
       const reviewMode = next.attempt.attempt_mode === "wrong_review";
       setPayload(next);
       setAnswers(Object.fromEntries(next.questions.filter((q) => q.selected_answer).map((q) => [q.question_id, q.selected_answer!] )));
+      setConfidences(Object.fromEntries(next.questions.map((q) => [q.question_id, q.confidence_level])));
       setStars(Object.fromEntries(next.questions.map((q) => [q.question_id, reviewMode ? q.review_is_starred : q.exam_is_starred])));
       setNotes(Object.fromEntries(next.questions.map((q) => [q.question_id, reviewMode ? q.review_note_text : q.exam_note_text])));
+      setActiveElapsedSeconds(next.questions.reduce((sum, question) => sum + (question.active_seconds || 0), 0));
+      setPaceCoachEnabled(next.attempt.attempt_mode === "subject_pool");
       setElapsedSeconds(Math.max(0, Math.floor((Date.now() - new Date(next.attempt.started_at).getTime()) / 1000)));
       if (next.attempt.is_timed && next.attempt.expires_at) {
         setRemainingSeconds(Math.max(0, Math.floor((new Date(next.attempt.expires_at).getTime() - Date.now()) / 1000)));
@@ -109,12 +125,28 @@ export default function ExamPage() {
     if (!payload) return;
     const tick = window.setInterval(() => {
       setElapsedSeconds(Math.max(0, Math.floor((Date.now() - new Date(payload.attempt.started_at).getTime()) / 1000)));
+      if (pageVisibleRef.current) setActiveElapsedSeconds((seconds) => seconds + 1);
       if (payload.attempt.is_timed && payload.attempt.expires_at) {
         setRemainingSeconds(Math.max(0, Math.floor((new Date(payload.attempt.expires_at).getTime() - Date.now()) / 1000)));
       }
     }, 1000);
     return () => window.clearInterval(tick);
   }, [payload]);
+
+  useEffect(() => {
+    function handleVisibility() {
+      if (document.hidden) {
+        void flushQuestionTime();
+        pageVisibleRef.current = false;
+      } else {
+        pageVisibleRef.current = true;
+        trackedAtRef.current = Date.now();
+      }
+    }
+    pageVisibleRef.current = !document.hidden;
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [flushQuestionTime]);
 
   useEffect(() => {
     if (!payload?.attempt.is_timed || remainingSeconds > 0 || autoSubmitStarted.current) return;
@@ -140,6 +172,15 @@ export default function ExamPage() {
   }, [flushQuestionTime]);
 
   const answeredCount = useMemo(() => Object.values(answers).filter(Boolean).length, [answers]);
+  const targetSecondsPerQuestion = payload?.attempt.is_timed && payload.questions.length
+    ? payload.attempt.duration_minutes * 60 / payload.questions.length
+    : 0;
+  const averageActiveSeconds = answeredCount > 0 ? activeElapsedSeconds / answeredCount : 0;
+  const projectedCompleted = payload && averageActiveSeconds > 0
+    ? Math.min(payload.questions.length, answeredCount + Math.floor(remainingSeconds / averageActiveSeconds))
+    : payload?.questions.length ?? 0;
+  const projectedGap = payload ? payload.questions.length - projectedCompleted : 0;
+  const paceStatus = projectedGap <= 0 ? "on-track" : projectedGap <= 5 ? "watch" : "behind";
 
   async function persistAnswer(nextAnswer: string) {
     if (!currentQuestion) return;
@@ -150,6 +191,9 @@ export default function ExamPage() {
       else delete copy[currentQuestion.question_id];
       return copy;
     });
+    if ((answers[currentQuestion.question_id] ?? "") !== normalized) {
+      setConfidences((current) => ({ ...current, [currentQuestion.question_id]: null }));
+    }
     setSaveState("saving");
     const { error } = await getSupabaseBrowserClient().rpc("save_attempt_answer", {
       p_attempt_id: attemptId,
@@ -172,6 +216,25 @@ export default function ExamPage() {
       void persistAnswer(current.includes(choice) ? current.replace(choice, "") : current + choice);
     } else {
       void persistAnswer(choice);
+    }
+  }
+
+  async function saveConfidence(level: ConfidenceLevel) {
+    if (!currentQuestion || !answers[currentQuestion.question_id]) return;
+    const next = confidences[currentQuestion.question_id] === level ? null : level;
+    setConfidences((current) => ({ ...current, [currentQuestion.question_id]: next }));
+    setConfidenceState("saving");
+    const { error } = await getSupabaseBrowserClient().rpc("save_attempt_confidence", {
+      p_attempt_id: attemptId,
+      p_question_id: currentQuestion.question_id,
+      p_confidence_level: next,
+    });
+    if (error) {
+      setConfidenceState("error");
+      setErrorMessage(`信心程度保存失敗：${error.message}`);
+    } else {
+      setConfidenceState("saved");
+      window.setTimeout(() => setConfidenceState("idle"), 1200);
     }
   }
 
@@ -239,11 +302,21 @@ export default function ExamPage() {
         </div>
         <strong>{payload.attempt.title}</strong>
       </div>
-      <div className={`timer ${payload.attempt.is_timed && remainingSeconds <= 300 ? "timer-warning" : ""}`}>
-        <span>{payload.attempt.is_timed ? "剩餘時間" : "已作答時間"}</span>
-        <strong>{formatSeconds(payload.attempt.is_timed ? remainingSeconds : elapsedSeconds)}</strong>
+      <div className="exam-header-tools">
+        {payload.attempt.is_timed && <button type="button" className={`pace-toggle ${paceCoachEnabled ? "active" : ""}`} onClick={() => setPaceCoachEnabled((value) => !value)}>{paceCoachEnabled ? "隱藏節奏" : "顯示節奏"}</button>}
+        <div className={`timer ${payload.attempt.is_timed && remainingSeconds <= 300 ? "timer-warning" : ""}`}>
+          <span>{payload.attempt.is_timed ? "剩餘時間" : "已作答時間"}</span>
+          <strong>{formatSeconds(payload.attempt.is_timed ? remainingSeconds : elapsedSeconds)}</strong>
+        </div>
       </div>
     </header>
+    {payload.attempt.is_timed && paceCoachEnabled && <section className={`pace-coach ${paceStatus}`}>
+      <div><span>已完成</span><strong>{answeredCount}／{payload.questions.length} 題</strong></div>
+      <div><span>目前有效平均</span><strong>{answeredCount ? `${Math.round(averageActiveSeconds)} 秒／題` : "等待作答"}</strong></div>
+      <div><span>每題目標</span><strong>{Math.round(targetSecondsPerQuestion)} 秒</strong></div>
+      <div><span>依目前速度預估</span><strong>{answeredCount ? `可完成 ${projectedCompleted} 題` : "尚無足夠資料"}</strong></div>
+      <p>{paceStatus === "on-track" ? "目前節奏可在時間內完成。" : paceStatus === "watch" ? `目前可能少完成 ${projectedGap} 題，留意後段速度。` : `目前可能少完成 ${projectedGap} 題，建議加快取捨。`}</p>
+    </section>}
     <div className="exam-progress"><div style={{ width: `${progress}%` }} /></div>
     <main className="exam-layout">
       <aside className="question-navigator">
@@ -263,7 +336,7 @@ export default function ExamPage() {
         <div className="question-toolbar">
           <span>第 {currentIndex + 1} / {payload.questions.length} 題</span>
           <span className={`save-indicator ${saveState}`}>
-            {saveState === "saving" ? "保存中…" : saveState === "saved" ? "已保存" : saveState === "error" ? "保存失敗" : annotationState === "saving" ? "標記保存中…" : annotationState === "saved" ? "標記已保存" : ""}
+            {saveState === "saving" ? "保存中…" : saveState === "saved" ? "已保存" : saveState === "error" ? "保存失敗" : annotationState === "saving" ? "標記保存中…" : annotationState === "saved" ? "標記已保存" : confidenceState === "saving" ? "信心保存中…" : confidenceState === "saved" ? "信心已保存" : ""}
           </span>
         </div>
         <div className="question-tags">
@@ -286,6 +359,16 @@ export default function ExamPage() {
             <span className="option-copy">{optionMap[choice]}</span>
           </label>)}
         </div>
+        <section className="confidence-panel">
+          <div><strong>這題有多確定？</strong><span>非必填，交卷前可修改</span></div>
+          <div className="confidence-buttons">{confidenceOptions.map((option) => <button
+            key={option.value}
+            type="button"
+            disabled={!selected}
+            className={confidences[currentQuestion.question_id] === option.value ? "active" : ""}
+            onClick={() => void saveConfidence(option.value)}
+          ><strong>{option.label}</strong><small>{option.hint}</small></button>)}</div>
+        </section>
         <div className="annotation-panel">
           <div className="annotation-context-label">{annotationPrefix}標記</div>
           <button type="button" className={`star-button ${stars[currentQuestion.question_id] ? "active" : ""}`} onClick={toggleStar}>

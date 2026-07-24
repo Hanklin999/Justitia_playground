@@ -53,6 +53,8 @@ export default function HistoryPage() {
   const [reviewTitle, setReviewTitle] = useState("");
   const [startingReview, setStartingReview] = useState(false);
   const [pendingReviewAttempt, setPendingReviewAttempt] = useState<AttemptHistoryItem | null>(null);
+  const [pendingDeleteAttempt, setPendingDeleteAttempt] = useState<AttemptHistoryItem | null>(null);
+  const [deletingAttempt, setDeletingAttempt] = useState(false);
 
   async function load() {
     const supabase = getSupabaseBrowserClient();
@@ -153,6 +155,25 @@ export default function HistoryPage() {
     router.push(`/results/${attemptId}`);
   }
 
+  async function confirmDeleteAttempt() {
+    if (!pendingDeleteAttempt || deletingAttempt) return;
+    setDeletingAttempt(true);
+    setErrorMessage("");
+    const deletedId = pendingDeleteAttempt.id;
+    const { error } = await getSupabaseBrowserClient().rpc("delete_my_attempt", { p_attempt_id: deletedId });
+    if (error) {
+      setErrorMessage(`刪除失敗：${error.message}`);
+      setDeletingAttempt(false);
+      return;
+    }
+    setAttempts((current) => current.filter((attempt) => attempt.id !== deletedId));
+    setReviewAttemptIds((current) => current.filter((id) => id !== deletedId));
+    setPendingDeleteAttempt(null);
+    setDeletingAttempt(false);
+    const { data: summaryData } = await getSupabaseBrowserClient().rpc("list_my_year_summaries");
+    setSummaries((summaryData ?? []) as YearSummary[]);
+  }
+
   return <section className="container page-section">
     <div className="eyebrow">作答回合</div>
     <h1>歷史紀錄</h1>
@@ -209,10 +230,22 @@ export default function HistoryPage() {
             {wrongCount !== null && <span>未滿分 {wrongCount} · 未答 {attempt.unanswered_count}</span>}
             <strong>{attempt.score === null ? "—" : `${attempt.score} / ${attempt.max_score}`}</strong>
             {rate !== null && <span>得分率 {rate.toFixed(1)}%</span>}
-            <button type="button" className="button secondary compact" onClick={() => openRecord(attempt)}>{isLive ? "繼續作答" : "查看作答紀錄"}</button>
+            <div className="history-card-actions"><button type="button" className="button secondary compact" onClick={() => openRecord(attempt)}>{isLive ? "繼續作答" : "查看作答紀錄"}</button><button type="button" className="text-button danger" onClick={() => setPendingDeleteAttempt(attempt)}>刪除此回合</button></div>
           </div>
         </article>;
       })}
+    </div>}
+
+
+
+    {pendingDeleteAttempt && <div className="modal-backdrop" role="presentation" onMouseDown={() => !deletingAttempt && setPendingDeleteAttempt(null)}>
+      <div className="warning-modal danger-modal" role="dialog" aria-modal="true" aria-labelledby="delete-warning-title" onMouseDown={(event) => event.stopPropagation()}>
+        <div className="warning-icon danger">!</div>
+        <h2 id="delete-warning-title">永久刪除這回作答紀錄？</h2>
+        <p>刪除後無法復原。該回合的答案、作答時間、模考星號、模考筆記、錯因與改答案紀錄都會一併刪除；受影響題目的間隔複習排程會依剩餘紀錄重新計算。</p>
+        <div className="warning-attempt-summary"><strong>{pendingDeleteAttempt.title}</strong><span>{new Date(pendingDeleteAttempt.started_at).toLocaleString("zh-TW")}</span></div>
+        <div className="modal-actions"><button type="button" className="button secondary" disabled={deletingAttempt} onClick={() => setPendingDeleteAttempt(null)}>取消</button><button type="button" className="button danger-button" disabled={deletingAttempt} onClick={() => void confirmDeleteAttempt()}>{deletingAttempt ? "刪除中…" : "確認永久刪除"}</button></div>
+      </div>
     </div>}
 
     {pendingReviewAttempt && <div className="modal-backdrop" role="presentation" onMouseDown={() => setPendingReviewAttempt(null)}>

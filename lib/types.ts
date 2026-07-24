@@ -2,7 +2,9 @@ export type AttemptStatus = "in_progress" | "submitted" | "timed_out";
 export type AttemptMode = "official_paper" | "subject_pool" | "wrong_review";
 export type AnswerChoice = "A" | "B" | "C" | "D" | "E";
 export type QuestionType = "single_choice" | "multiple_choice";
-export type SelectionStrategy = "default_scope" | "recent_10_wrong_priority" | "review_union" | "official_order";
+export type ConfidenceLevel = "confident" | "unsure" | "guess";
+export type ErrorReason = "unfamiliar_rule" | "forgot_exception" | "misread_stem" | "option_confusion" | "time_pressure" | "careless" | "guessed";
+export type SelectionStrategy = "default_scope" | "recent_10_wrong_priority" | "review_union" | "official_order" | "spaced_review";
 
 export interface ExamPaper {
   paper_id: string;
@@ -61,6 +63,9 @@ export interface AttemptQuestion {
   review_is_starred: boolean;
   review_note_text: string;
   active_seconds: number;
+  confidence_level: ConfidenceLevel | null;
+  answered_at: string | null;
+  seconds_remaining_at_answer: number | null;
 }
 
 export interface AttemptMeta {
@@ -108,6 +113,11 @@ export interface ResultQuestion extends AttemptQuestion {
   earned_points: number;
   is_correct: boolean;
   is_unanswered: boolean;
+  answer_revision_count: number;
+  first_answer: string | null;
+  first_earned_points: number;
+  primary_error_reason: ErrorReason | null;
+  secondary_error_reasons: string[];
 }
 
 export interface AttemptResult {
@@ -176,4 +186,23 @@ export interface YearSummary {
   judicial_cutoff: number | null;
   lawyer_cutoff: number | null;
   cutoff_source_url: string | null;
+}
+
+
+export interface DueReviewSummary {
+  due_count: number;
+  upcoming_count: number;
+  next_due_at: string | null;
+  due_by_subject: Array<{ subject: string; count: number }>;
+}
+
+export interface LearningInsights {
+  recent_attempt_count: number;
+  top_error_reasons: Array<{ reason: ErrorReason; count: number }>;
+  confidence: {
+    confident_wrong: number;
+    unsure_correct: number;
+    guess_wrong: number;
+    recorded: number;
+  };
 }
