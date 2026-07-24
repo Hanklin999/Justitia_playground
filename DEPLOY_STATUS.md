@@ -53,3 +53,8 @@ Push to GitHub; Netlify will redeploy from the connected repository.
 ## Still requires your environment
 
 This execution environment could not finish downloading npm dependencies, and it has no access to execute SQL against your Supabase project. A real `npm run build`, remote migration and end-to-end browser test must therefore run locally／on Netlify after the SQL upgrade.
+
+## V2.1 hotfix
+- Fixed PostgreSQL RPC error: `column reference "a.paper_id" is ambiguous`.
+- The affected functions were `get_attempt_payload` and `get_attempt_result`.
+- Existing Supabase projects should run `supabase/v2_hotfix_ambiguous_paper_id.sql` once.
