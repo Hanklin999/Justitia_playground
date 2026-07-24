@@ -99,6 +99,7 @@ create table if not exists private.question_answer_keys (
   question_id text primary key references public.questions(question_id) on delete cascade,
   original_answer char(1) check (original_answer in ('A', 'B', 'C', 'D')),
   final_answer char(1) not null check (final_answer in ('A', 'B', 'C', 'D')),
+  accepted_answers text[] not null default '{}'::text[],
   official_answer_status text not null default 'official_standard',
   official_notice_url text,
   updated_at timestamptz not null default now()
@@ -225,7 +226,7 @@ begin
   end;
 
   select
-    count(*) filter (where aa.selected_answer = ak.final_answer),
+    count(*) filter (where aa.selected_answer::text = any(case when cardinality(ak.accepted_answers) > 0 then ak.accepted_answers else array[ak.final_answer::text] end)),
     count(aa.selected_answer)
   into v_correct, v_answered
   from public.attempt_questions aq
@@ -614,7 +615,8 @@ begin
           'option_d', q.option_d,
           'selected_answer', aa.selected_answer,
           'correct_answer', ak.final_answer,
-          'is_correct', coalesce(aa.selected_answer = ak.final_answer, false),
+          'correct_answers', case when cardinality(ak.accepted_answers) > 0 then ak.accepted_answers else array[ak.final_answer::text] end,
+          'is_correct', coalesce(aa.selected_answer::text = any(case when cardinality(ak.accepted_answers) > 0 then ak.accepted_answers else array[ak.final_answer::text] end), false),
           'is_unanswered', aa.selected_answer is null,
           'review_status', q.review_status
         ) order by aq.display_order

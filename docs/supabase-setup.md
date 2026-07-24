@@ -1,39 +1,38 @@
-# Supabase 設定
+# Supabase V2 設定
 
-Project URL 與 Publishable Key 已寫入本機 `.env.local`。Publishable Key 可放在瀏覽器；真正的資料安全依賴 RLS 與 Database Functions。不要把 Secret Key 或 `service_role` key 放進前端、GitHub 或聊天室。
+Publishable Key 可放在瀏覽器；真正的資料安全依賴 RLS 與 Database Functions。不要把 Secret Key 或 `service_role` key 放進前端、GitHub 或聊天室。
 
-## 1. 建立資料庫
+## 1. V1 升級 V2
 
-在 Supabase Dashboard → **SQL Editor**，最簡單是直接執行：
+到 Supabase Dashboard → **SQL Editor**，建議分兩次執行：
 
-```text
-supabase/setup_all.sql
-```
+1. `supabase/v2_step_1_schema.sql`：資料表、欄位、RLS、RPC、計時與歷史分析。
+2. `supabase/v2_step_2_seed.sql`：110–114 年 20 卷、1,500 題與 private answer keys。
 
-它依序包含：
+兩步完成後執行 `supabase/v2_step_3_verify.sql`。`supabase/setup_v2.sql` 是前兩步合併版，SQL Editor 能正常承受大型查詢時也可一次執行。
 
-1. `supabase/migrations/0001_initial_schema.sql`
-2. `supabase/migrations/0002_seed_113_114.sql`
-3. `supabase/migrations/0003_timeout_cron.sql`
+Migration 採 repeat-safe／upsert 寫法，可接在既有 V1 schema 後執行，並保留既有使用者與歷史紀錄。
 
-第三份 migration 會每分鐘完成已逾時的考試紀錄。即使使用者關掉瀏覽器，逾時紀錄仍會被標記為 `timed_out` 並完成計分。
-
-執行完成後，可用以下 SQL 驗證：
+完成後驗證：
 
 ```sql
 select count(*) as papers from public.exam_papers;
 select count(*) as questions from public.questions;
 select count(*) as answer_keys from private.question_answer_keys;
-select jobname, schedule, command from cron.job
-where jobname = 'justitia-finalize-expired-attempts';
+select count(*) as subject_configs from public.subject_exam_config;
+select exam_year_roc, judicial_cutoff, lawyer_cutoff
+from public.exam_cutoffs
+order by exam_year_roc;
 ```
 
 預期：
 
-- `papers = 8`
-- `questions = 600`
-- `answer_keys = 600`
-- Cron job 共 1 筆
+- `papers = 20`
+- `questions = 1500`
+- `answer_keys = 1500`
+- `subject_configs > 0`
+- `exam_cutoffs = 5` 個年度
+- `111-2301-050.accepted_answers = {A,B}`
 
 ## 2. Email Magic Link
 
@@ -44,30 +43,29 @@ Supabase Dashboard → **Authentication → URL Configuration**：
 - Site URL：`http://localhost:3000`
 - Redirect URLs：`http://localhost:3000/**`
 
-### Netlify 上線後
+### Netlify
 
-將 Site URL 改為正式 `https://<site-name>.netlify.app`，並加入：
-
-- `https://<site-name>.netlify.app/**`
-- `https://**--<site-name>.netlify.app/**`（Deploy Preview）
+- Site URL：`https://exam-justitia-playground.netlify.app`
+- Redirect URLs：
+  - `https://exam-justitia-playground.netlify.app/**`
+  - `https://**--exam-justitia-playground.netlify.app/**`
 
 登入信會導回 `/auth/complete`，成功後前往 `/practice`。
 
-## 3. 本機測試
+## 3. 本機驗證
 
-```bash
-npm install
-npm run check:supabase
-npm run dev
+```powershell
+npm.cmd install
+npm.cmd run check:supabase
+npm.cmd run build
+npm.cmd run dev
 ```
 
-`check:supabase` 會嘗試讀取一筆 `exam_papers`。若 migration 尚未建立，會回傳 API 錯誤。
-
-## 4. 安全設計
+## 4. V2 安全設計
 
 - `public.questions` 不存官方答案。
-- 官方答案存於 `private.question_answer_keys`，前端不能直接讀取。
-- 使用者不能直接新增或修改 `exam_attempts`、`attempt_answers`。
-- 開始考試、保存答案、交卷與計分全部透過 Security Definer RPC。
-- `duration_minutes`、題數、配分與滿分會在開始考試時寫入 Log 快照。
-- 成績頁只在考試已交卷或逾時後回傳正確答案。
+- 官方答案存於 `private.question_answer_keys`，並以 `accepted_answers` 支援複數有效答案。
+- 開始正式卷、自組卷、錯題重刷、保存答案、保存筆記、累積題目時間、交卷與計分全部透過 RPC。
+- 使用者只能讀取自己的 attempt、作答、星號、筆記與題目活動。
+- 正式計時使用 server-generated `expires_at`，不是依賴使用者電腦時間。
+- 自組卷與錯題卷會把抽出的題目順序固定在 `attempt_questions`。

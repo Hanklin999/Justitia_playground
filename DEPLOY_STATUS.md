@@ -1,26 +1,55 @@
-# Current deployment status
+# V2 deployment status
 
-## Ready
+## Ready in this package
 
-- Supabase URL and Publishable Key configured in local `.env.local`
-- Database schema, RLS, RPC scoring and private answer keys
-- 113／114 year seed: 8 papers, 600 questions
-- Email Magic Link UI and callback
-- Timed exam runner, autosave, manual submit and timeout submit
-- Result page and attempt history
-- Optional/recommended one-minute timeout Cron
-- Netlify configuration and deployment guide
+- Next.js V2 UI：依年度、依科目、自組卷、錯題重刷
+- Email Magic Link client flow
+- 110–114 年 20 卷、1,500 題
+- 科目／民法子科目自動標記
+- 111 年公法卷第 50 題 A／B 複數有效答案
+- 正式卷與比例計時自組卷
+- 答案、星號、私人筆記與題目活躍秒數
+- 結果頁科目錯題分布與年度四卷總分
+- 歷史紀錄年度／模式／科目／結果篩選
+- Supabase V2 schema、RLS、RPC 與 private answer keys
+- Netlify 設定檔
 
-## One manual action required now
+## Existing V1 project upgrade
 
-Open Supabase Dashboard → SQL Editor and run:
+In Supabase SQL Editor, run in order:
 
-```text
-supabase/setup_all.sql
+1. `supabase/v2_step_1_schema.sql`
+2. `supabase/v2_step_2_seed.sql`
+3. `supabase/v2_step_3_verify.sql`
+
+Expected verification:
+
+- papers = 20
+- questions = 1500
+- answer_keys = 1500
+- `111-2301-050.accepted_answers = {A,B}`
+
+Then replace／merge the project files, run locally:
+
+```powershell
+npm.cmd install
+npm.cmd run build
+npm.cmd run dev
 ```
 
-Then configure Authentication URL settings as described in `docs/supabase-setup.md`.
+Push to GitHub; Netlify will redeploy from the connected repository.
 
-## Not yet verified remotely
+## Validation completed offline
 
-The current execution environment cannot resolve the supplied Supabase host or reach npm, so it could not run the remote health check or a real `npm install && npm run build`. TypeScript source syntax, local strict-null checks with external module shims, Python ETL and CSV QA have been run successfully.
+- Python ETL: pass
+- 20 paper QA rows: pass
+- 1,500 unique questions: pass
+- All subject mappings: pass
+- 111 civil split 34／16: pass
+- 111 Q50 correction: pass
+- TypeScript／TSX syntax transpilation: pass
+- Generated SQL lexical checks: pass
+
+## Still requires your environment
+
+This execution environment could not finish downloading npm dependencies, and it has no access to execute SQL against your Supabase project. A real `npm run build`, remote migration and end-to-end browser test must therefore run locally／on Netlify after the SQL upgrade.

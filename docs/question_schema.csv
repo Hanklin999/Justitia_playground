@@ -1,4 +1,4 @@
-﻿field_name,data_type,required_in_v1,source,description,example
+﻿field_name,data_type,required_in_v2,source,description,example
 question_id,text,yes,generated,唯一題目鍵,114-2301-001
 exam_year_roc,smallint,yes,manifest,民國年度,114
 exam_year_ad,smallint,yes,manifest,西元年度,2025
@@ -23,8 +23,11 @@ option_a,text,yes,question PDF,選項 A,…
 option_b,text,yes,question PDF,選項 B,…
 option_c,text,yes,question PDF,選項 C,…
 option_d,text,yes,question PDF,選項 D,…
-correct_answer,char(1),yes,answer PDF,官方答案,A
-official_answer_status,text,yes,constant/review,答案狀態,official_standard
+original_answer,char(1),yes,original answer PDF,原始公布答案,A
+correct_answer,char(1),yes,answer PDF / correction,主要顯示答案；複數有效答案時取 accepted_answers 第一個,A
+accepted_answers,text[],yes,answer PDF / correction notice,所有可得分答案；多個答案以 | 分隔於 CSV,A|B
+official_answer_status,text,yes,official notice/review,答案狀態，例如 official_standard、corrected_multiple,corrected_multiple
+official_notice_url,text,when corrected,official correction notice,答案更正或送分公告網址,https://wwwq.moex.gov.tw/…&t=M
 source_question_url,text,yes,manifest,官方題目網址,https://wwwq.moex.gov.tw/…
 source_answer_url,text,yes,manifest,官方答案網址,https://wwwq.moex.gov.tw/…
 source_question_pdf,text,yes,manifest,本機題目 PDF 路徑,data/raw/114/…pdf
@@ -33,7 +36,8 @@ source_page_start,smallint,yes,parser,題目起始頁,1
 source_page_end,smallint,yes,parser,題目結束頁,1
 extraction_status,text,yes,parser,機器解析結果,parsed
 review_status,text,yes,manual workflow,人工複核狀態,pending_manual_review
-subject_primary,text,later,manual tagging,主要科目,行政法
+subject_primary,text,yes,deterministic mapping,依試卷代號與題號自動填入主要科目；未命中為未分類,行政法
+subsubject_primary,text,yes,deterministic mapping,民法題目的財產法／親屬繼承標記；無子科目則留空,財產法
 subject_secondary,text,later,manual tagging,次要科目，| 分隔,憲法
 chapter,text,later,manual tagging,章節,行政處分
 topic_primary,text,later,manual tagging,主要考點,行政處分附款

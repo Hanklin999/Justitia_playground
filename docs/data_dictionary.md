@@ -18,8 +18,11 @@
 | `question_type` | 第一版固定 `single_choice` |
 | `question_text` | 題幹 |
 | `option_a`–`option_d` | 四個選項 |
-| `correct_answer` | 官方標準答案 |
-| `official_answer_status` | 第一版為 `official_standard` |
+| `original_answer` | 原始答案 PDF 公布的答案 |
+| `correct_answer` | 主要顯示答案；複數答案時取第一個 |
+| `accepted_answers` | 所有可得分答案，例如 `A|B` |
+| `official_answer_status` | `official_standard`、`corrected_multiple` 等 |
+| `official_notice_url` | 官方更正／送分公告網址 |
 | `source_*` | 官方網址、PDF 檔案與頁碼 |
 | `extraction_status` | PDF 是否成功解析 |
 | `review_status` | 人工 QA 狀態 |
@@ -39,4 +42,4 @@
 
 ## 第一輪人工 QA
 
-第一輪不是做法律考點標記，而是確認：題號、題幹、四個選項、官方答案、頁碼與試卷是否對齊。確認後將 `review_status` 改為 `verified_text_answer`。之後才進入科目與考點標記。
+第一輪不是做法律考點標記，而是確認：題號、題幹、四個選項、原始答案、複數有效答案／更正公告、頁碼與試卷是否對齊。確認後將 `review_status` 改為 `verified_text_answer`。之後才進入科目與考點標記。

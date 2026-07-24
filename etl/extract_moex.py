@@ -34,11 +34,11 @@ OUTPUT_COLUMNS = [
     "included_subjects", "duration_minutes", "expected_question_count",
     "points_per_question", "max_score", "question_number",
     "question_type", "question_text", "option_a", "option_b", "option_c",
-    "option_d", "correct_answer", "official_answer_status",
+    "option_d", "original_answer", "correct_answer", "accepted_answers", "official_answer_status", "official_notice_url",
     "source_question_url", "source_answer_url", "source_question_pdf",
     "source_answer_pdf", "source_page_start", "source_page_end",
     "extraction_status", "review_status", "subject_primary",
-    "subject_secondary", "chapter", "topic_primary", "topic_secondary",
+    "subsubject_primary", "subject_secondary", "chapter", "topic_primary", "topic_secondary",
     "law_refs", "tags", "notes",
 ]
 
@@ -187,6 +187,57 @@ def extract_answers(pdf_path: Path, expected_count: int) -> list[str]:
     return answers
 
 
+
+def classify_question(exam_year_roc: int, paper_code: str, question_number: int) -> tuple[str, str]:
+    """Apply deterministic first-stage subject ranges supplied by the product owner."""
+    subject = "未分類"
+    subsubject = "未分類"
+
+    if paper_code == "1301":
+        if 1 <= question_number <= 35:
+            subject = "刑法"
+        elif 36 <= question_number <= 60:
+            subject = "刑事訴訟法"
+        elif 61 <= question_number <= 75:
+            subject = "法律倫理"
+    elif paper_code == "2301":
+        if 1 <= question_number <= 20:
+            subject = "憲法"
+        elif 21 <= question_number <= 55:
+            subject = "行政法"
+        elif 56 <= question_number <= 65:
+            subject = "國際公法"
+        elif 66 <= question_number <= 75:
+            subject = "國際私法"
+    elif paper_code == "3301":
+        if 1 <= question_number <= 50:
+            subject = "民法"
+            if exam_year_roc == 111:
+                property_numbers = set(range(1, 9)) | set(range(10, 35)) | {36}
+                family_numbers = {9, 35} | set(range(37, 51))
+                if question_number in property_numbers:
+                    subsubject = "財產法"
+                elif question_number in family_numbers:
+                    subsubject = "親屬繼承"
+            elif 1 <= question_number <= 35:
+                subsubject = "財產法"
+            elif 36 <= question_number <= 50:
+                subsubject = "親屬繼承"
+        elif 51 <= question_number <= 80:
+            subject = "民事訴訟法"
+    elif paper_code == "4301":
+        ranges = [
+            (1, 15, "公司法"), (16, 25, "保險法"), (26, 35, "票據法"),
+            (36, 45, "證券交易法"), (46, 55, "強制執行法"),
+            (56, 70, "法學英文"),
+        ]
+        for start, end, label in ranges:
+            if start <= question_number <= end:
+                subject = label
+                break
+
+    return subject, subsubject
+
 def write_csv(path: Path, columns: list[str], rows: Iterable[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8-sig", newline="") as handle:
@@ -211,18 +262,30 @@ def build_dataset(project_root: Path, manifest_path: Path) -> tuple[list[dict], 
 
         for parsed, answer in zip(parsed_questions, answers):
             question_number = int(parsed["question_number"])
+            subject_primary, subsubject_primary = classify_question(
+                int(paper["exam_year_roc"]), str(paper["paper_code"]), question_number
+            )
+            override = (paper.get("answer_overrides") or {}).get(str(question_number), {})
+            accepted_answers = override.get("accepted_answers") or [answer]
+            if not accepted_answers or any(choice not in {"A", "B", "C", "D"} for choice in accepted_answers):
+                raise ExtractionError(f"{paper['paper_id']} question {question_number}: invalid answer override")
+            final_answer = accepted_answers[0]
             row = {
                 **paper,
                 **parsed,
                 "question_id": f'{paper["paper_id"]}-{question_number:03d}',
                 "question_type": "single_choice",
-                "correct_answer": answer,
-                "official_answer_status": "official_standard",
+                "original_answer": answer,
+                "correct_answer": final_answer,
+                "accepted_answers": "|".join(accepted_answers),
+                "official_answer_status": override.get("official_answer_status", "official_standard"),
+                "official_notice_url": override.get("official_notice_url", ""),
                 "source_question_pdf": paper["question_pdf"],
                 "source_answer_pdf": paper["answer_pdf"],
                 "extraction_status": "parsed",
                 "review_status": "pending_manual_review",
-                "subject_primary": "",
+                "subject_primary": subject_primary,
+                "subsubject_primary": subsubject_primary,
                 "subject_secondary": "",
                 "chapter": "",
                 "topic_primary": "",
@@ -265,13 +328,13 @@ def main() -> int:
         return 1
 
     output_dir = project_root / "data" / "processed"
-    write_csv(output_dir / "questions_113_114.csv", OUTPUT_COLUMNS, questions)
-    write_csv(output_dir / "papers_113_114.csv", list(papers[0]), papers)
+    write_csv(output_dir / "questions_110_114.csv", OUTPUT_COLUMNS, questions)
+    write_csv(output_dir / "papers_110_114.csv", list(papers[0]), papers)
     write_csv(output_dir / "qa_report.csv", list(qa[0]), qa)
     write_csv(project_root / "data" / "review" / "questions_review_template.csv", OUTPUT_COLUMNS, questions)
 
     print(f"Wrote {len(questions)} questions across {len(papers)} papers.")
-    print(f"Output: {output_dir / 'questions_113_114.csv'}")
+    print(f"Output: {output_dir / 'questions_110_114.csv'}")
     return 0
 
 
