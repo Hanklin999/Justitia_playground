@@ -12,8 +12,8 @@ export default function HomePage() {
       </div>
       <div className="feature-grid">
         <article><strong>年度正式卷</strong><span>依年份選擇四份綜合法學試卷，保留官方題序與時長。</span></article>
-        <article><strong>科目自組卷</strong><span>複選年度與科目，從近十年題池抽出對應題數，依原卷平均時間比例計時。</span></article>
-        <article><strong>錯題與筆記</strong><span>星號標記不會的題目、留下筆記，並建立不計時錯題重刷。</span></article>
+        <article><strong>科目自組卷</strong><span>複選年度與科目，自訂名稱、模考日期與題數；自訂題數會優先抽取近 10 回同範圍錯題。</span></article>
+        <article><strong>錯題與筆記</strong><span>分開保存模考與檢討星號／筆記，並從指定作答回合建立不計時複習組卷。</span></article>
       </div>
     </section>
   );

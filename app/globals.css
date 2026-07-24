@@ -432,3 +432,86 @@ button:disabled { cursor: not-allowed; background: #e6ebf2 !important; color: #7
 .option-flags small { white-space: nowrap; border-radius: 999px; padding: 3px 7px; background: var(--blue-100); color: var(--blue-800); font-weight: 700; }
 .result-option.user-selected .option-flags small:first-child { background: #fff0c8; color: #8a5b00; }
 @media (max-width: 640px) { .result-option { grid-template-columns: 30px 1fr; } .option-flags { grid-column: 2; justify-content: flex-start; } }
+
+/* v3.1.0 annotation separation, custom mocks, review builder and record warning */
+.annotation-context-label { color: var(--blue-800); font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.annotation-panel > small { color: var(--muted); line-height: 1.5; }
+
+.custom-exam-fields { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px; }
+.custom-exam-fields label { display: grid; gap: 7px; }
+.custom-exam-fields label > span { color: var(--muted); font-size: 12px; font-weight: 700; }
+.custom-exam-fields input,
+.history-toolbar input,
+.review-title-input input { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; background: var(--white); color: var(--text); font: inherit; }
+.custom-exam-fields small { color: var(--muted); }
+.strategy-notice { margin-top: 15px; display: grid; gap: 4px; padding: 14px; border-radius: 12px; background: #fff9e7; border: 1px solid #efdca6; color: #765000; }
+.strategy-notice span { font-size: 13px; line-height: 1.5; }
+.builder-summary { grid-template-columns: repeat(4, minmax(0, 1fr)) auto; }
+
+.annotation-comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+.annotation-readonly-card,
+.annotation-edit-card { border: 1px solid var(--line); border-radius: 13px; padding: 15px; display: grid; gap: 10px; }
+.annotation-readonly-card { background: #f6f8fb; }
+.annotation-readonly-card > div,
+.annotation-edit-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.annotation-readonly-card p { margin: 0; white-space: pre-wrap; }
+.annotation-readonly-card small,
+.annotation-edit-card small { color: var(--muted); line-height: 1.45; }
+.annotation-edit-card { background: #fffdf7; }
+.annotation-edit-card textarea { width: 100%; min-height: 105px; border: 1px solid var(--line); border-radius: 10px; padding: 12px; resize: vertical; font: inherit; line-height: 1.55; }
+.annotation-edit-header .star-button { justify-self: auto; }
+
+.history-toolbar-v31 { grid-template-columns: repeat(4, minmax(135px, 1fr)); }
+.history-toolbar select,
+.history-toolbar input { min-height: 42px; }
+.review-builder-card { margin: 22px 0 28px; border: 1px solid var(--line); background: var(--white); border-radius: 17px; padding: 20px; box-shadow: var(--shadow); }
+.review-builder-heading { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; }
+.review-builder-heading h2 { margin: 4px 0; }
+.review-builder-heading p { margin: 0; color: var(--muted); }
+.review-condition-row { display: grid; grid-template-columns: auto auto auto minmax(220px, 1fr) auto; gap: 12px; align-items: end; margin-top: 18px; }
+.review-condition-row > label:not(.review-title-input) { display: inline-flex; align-items: center; gap: 7px; min-height: 42px; padding: 0 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--blue-050); font-weight: 700; }
+.review-title-input { display: grid; gap: 6px; }
+.review-title-input > span { color: var(--muted); font-size: 12px; font-weight: 700; }
+
+.history-card-v31 { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr) minmax(220px, auto); gap: 14px; align-items: start; }
+.history-card-main h2 { margin: 10px 0 5px; }
+.attempt-select { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 8px; background: var(--blue-050); border: 1px solid var(--line); }
+.attempt-select.disabled { opacity: .4; }
+.attempt-select input { width: 17px; height: 17px; }
+.paper-kind-pill { display: inline-flex; padding: 5px 9px; border-radius: 999px; background: #eef5ff; color: var(--blue-700); font-size: 12px; font-weight: 700; }
+.history-annotation-counts { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+.history-annotation-counts span { border-radius: 999px; padding: 5px 8px; background: #f2f4f7; color: var(--muted); font-size: 11px; font-weight: 700; }
+
+.modal-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px; background: rgba(11, 28, 51, .62); backdrop-filter: blur(3px); }
+.warning-modal { width: min(520px, 100%); background: var(--white); border-radius: 20px; padding: 26px; box-shadow: 0 25px 70px rgba(5, 22, 44, .3); text-align: center; }
+.warning-icon { width: 52px; height: 52px; display: grid; place-items: center; margin: 0 auto 12px; border-radius: 50%; background: var(--amber-100); color: var(--amber-700); font-size: 28px; font-weight: 900; }
+.warning-modal h2 { margin: 5px 0 10px; }
+.warning-modal > p { color: var(--muted); line-height: 1.65; }
+.warning-attempt-summary { display: grid; gap: 4px; margin: 17px 0; padding: 13px; border-radius: 12px; background: var(--blue-050); text-align: left; }
+.warning-attempt-summary span { color: var(--muted); font-size: 13px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+
+@media (max-width: 980px) {
+  .custom-exam-fields,
+  .history-toolbar-v31 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .review-condition-row { grid-template-columns: repeat(3, auto); }
+  .review-title-input { grid-column: 1 / -1; }
+  .review-condition-row .button { grid-column: 1 / -1; }
+  .builder-summary { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 700px) {
+  .custom-exam-fields,
+  .history-toolbar-v31,
+  .annotation-comparison-grid { grid-template-columns: 1fr; }
+  .review-builder-heading { flex-direction: column; }
+  .review-condition-row { grid-template-columns: 1fr; }
+  .review-title-input,
+  .review-condition-row .button { grid-column: auto; }
+  .history-card-v31 { grid-template-columns: 30px 1fr; }
+  .history-card-v31 .history-stats { grid-column: 2; }
+  .annotation-readonly-card > div,
+  .annotation-edit-header { align-items: flex-start; flex-direction: column; }
+  .modal-actions { flex-direction: column-reverse; }
+  .modal-actions .button { width: 100%; }
+}

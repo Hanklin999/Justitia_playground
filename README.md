@@ -1,10 +1,15 @@
-# Justitia's playground v3.0.0
+# Justitia's playground v3.1.0
 
 > 司律陪考資料庫
 
-司法官／律師第一試刷題與單卷模擬平台。v3.0.0 收錄民國 105–114 年考選部官方考古題，共 40 卷、2,968 題。
+司法官／律師第一試刷題與單卷模擬平台。v3.1.0 延續民國 105–114 年考選部官方考古題，共 40 卷、2,968 題。
 
-## v3.0.0 重點
+## v3.1.0 重點
+
+- 分離模考與檢討星號／筆記，保留作答當下與考後檢討兩種脈絡。
+- 歷史紀錄可按卷種、模考日期與得分率篩選排序。
+- 可由指定作答回合的錯題／模考星號／檢討星號建立複習組卷。
+- 科目自組模考可自訂名稱、日期與題數；非預設題數會優先從最近 10 回同範圍答錯題隨機抽取，再從題池不重複補足。
 
 - 題庫擴充至近十年：105–114 年。
 - 年度模式保留官方題序、題數、配分與考試時長。
@@ -28,7 +33,7 @@ python scripts/validate_v3.py
 預期：
 
 ```text
-PASS: v3.0.0 release gate
+PASS: v3.1.0 release gate
 papers=40 questions=2968 single=2904 multiple=64
 ```
 
@@ -42,6 +47,7 @@ papers=40 questions=2968 single=2904 multiple=64
 4. `16_answers.sql` 至 `22_answers.sql`
 5. `23_cutoffs_105_114.sql`
 6. `99_verify_v3.sql`
+7. v3.1.0 再執行 `24_v3_1_attempt_review_workflow.sql` 與 `25_verify_v3_1.sql`
 
 全部採 repeat-safe／upsert 寫法，既有使用者、作答、星號與筆記不會被刪除。
 

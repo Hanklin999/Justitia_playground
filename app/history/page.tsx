@@ -14,8 +14,8 @@ function statusText(status: AttemptHistoryItem["status"]): string {
 
 function modeText(mode: AttemptMode): string {
   if (mode === "official_paper") return "年度卷";
-  if (mode === "subject_pool") return "科目卷";
-  return "錯題重刷";
+  if (mode === "subject_pool") return "自組模考";
+  return "複習組卷";
 }
 
 function formatDuration(seconds: number | null): string {
@@ -25,6 +25,13 @@ function formatDuration(seconds: number | null): string {
   return `${m} 分 ${s} 秒`;
 }
 
+function scoreRate(attempt: AttemptHistoryItem): number | null {
+  if (attempt.score === null || !attempt.max_score) return null;
+  return attempt.score / attempt.max_score * 100;
+}
+
+type SortKey = "date_desc" | "date_asc" | "score_desc" | "score_asc";
+
 export default function HistoryPage() {
   const router = useRouter();
   const [attempts, setAttempts] = useState<AttemptHistoryItem[]>([]);
@@ -33,9 +40,19 @@ export default function HistoryPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [modeFilter, setModeFilter] = useState<"all" | AttemptMode>("all");
   const [yearFilter, setYearFilter] = useState<number | "all">("all");
-  const [subjectFilter, setSubjectFilter] = useState<string>("all");
-  const [resultFilter, setResultFilter] = useState<"all" | "wrong" | "perfect" | "in_progress">("all");
-  const [startingWrong, setStartingWrong] = useState(false);
+  const [paperKindFilter, setPaperKindFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [minRate, setMinRate] = useState("");
+  const [maxRate, setMaxRate] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("date_desc");
+  const [reviewAttemptIds, setReviewAttemptIds] = useState<string[]>([]);
+  const [includeWrong, setIncludeWrong] = useState(true);
+  const [includeExamStarred, setIncludeExamStarred] = useState(false);
+  const [includeReviewStarred, setIncludeReviewStarred] = useState(false);
+  const [reviewTitle, setReviewTitle] = useState("");
+  const [startingReview, setStartingReview] = useState(false);
+  const [pendingReviewAttempt, setPendingReviewAttempt] = useState<AttemptHistoryItem | null>(null);
 
   async function load() {
     const supabase = getSupabaseBrowserClient();
@@ -57,91 +74,155 @@ export default function HistoryPage() {
   useEffect(() => { void load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const availableYears = useMemo(() => Array.from(new Set(attempts.flatMap((attempt) => attempt.exam_year_roc ? [attempt.exam_year_roc] : attempt.selected_years))).sort((a, b) => b - a), [attempts]);
-  const availableSubjects = useMemo(() => Array.from(new Set(attempts.flatMap((attempt) => attempt.selected_subjects))).sort(), [attempts]);
+  const availablePaperKinds = useMemo(() => Array.from(new Set(attempts.flatMap((attempt) => attempt.selected_paper_kinds ?? []).filter(Boolean))).sort(), [attempts]);
 
-  const filteredAttempts = useMemo(() => attempts.filter((attempt) => {
-    if (modeFilter !== "all" && attempt.attempt_mode !== modeFilter) return false;
-    const years = attempt.exam_year_roc ? [attempt.exam_year_roc] : attempt.selected_years;
-    if (yearFilter !== "all" && !years.includes(yearFilter)) return false;
-    if (subjectFilter !== "all" && !attempt.selected_subjects.includes(subjectFilter)) return false;
-    const wrongCount = attempt.correct_count === null || attempt.unanswered_count === null ? null : attempt.question_count - attempt.correct_count - attempt.unanswered_count;
-    if (resultFilter === "in_progress" && attempt.status !== "in_progress") return false;
-    if (resultFilter === "wrong" && !(wrongCount !== null && wrongCount > 0)) return false;
-    if (resultFilter === "perfect" && !(wrongCount === 0 && attempt.unanswered_count === 0)) return false;
-    return true;
-  }), [attempts, modeFilter, resultFilter, subjectFilter, yearFilter]);
+  const filteredAttempts = useMemo(() => {
+    const min = minRate === "" ? null : Number(minRate);
+    const max = maxRate === "" ? null : Number(maxRate);
+    return attempts.filter((attempt) => {
+      if (modeFilter !== "all" && attempt.attempt_mode !== modeFilter) return false;
+      const years = attempt.exam_year_roc ? [attempt.exam_year_roc] : attempt.selected_years;
+      if (yearFilter !== "all" && !years.includes(yearFilter)) return false;
+      if (paperKindFilter !== "all" && !attempt.selected_paper_kinds.includes(paperKindFilter)) return false;
+      if (dateFrom && attempt.exam_date < dateFrom) return false;
+      if (dateTo && attempt.exam_date > dateTo) return false;
+      const rate = scoreRate(attempt);
+      if (min !== null && (rate === null || rate < min)) return false;
+      if (max !== null && (rate === null || rate > max)) return false;
+      return true;
+    }).sort((left, right) => {
+      const leftExamDate = new Date(`${left.exam_date}T00:00:00`).getTime();
+      const rightExamDate = new Date(`${right.exam_date}T00:00:00`).getTime();
+      if (sortKey === "date_asc") return leftExamDate - rightExamDate || new Date(left.started_at).getTime() - new Date(right.started_at).getTime();
+      if (sortKey === "score_desc") return (scoreRate(right) ?? -1) - (scoreRate(left) ?? -1);
+      if (sortKey === "score_asc") return (scoreRate(left) ?? 101) - (scoreRate(right) ?? 101);
+      return rightExamDate - leftExamDate || new Date(right.started_at).getTime() - new Date(left.started_at).getTime();
+    });
+  }, [attempts, dateFrom, dateTo, maxRate, minRate, modeFilter, paperKindFilter, sortKey, yearFilter]);
 
-  async function startWrongReview() {
-    setStartingWrong(true);
+  const completedFilteredAttempts = useMemo(() => filteredAttempts.filter((attempt) => attempt.status !== "in_progress"), [filteredAttempts]);
+
+  function toggleReviewAttempt(attemptId: string) {
+    setReviewAttemptIds((current) => current.includes(attemptId) ? current.filter((id) => id !== attemptId) : [...current, attemptId]);
+  }
+
+  function selectAllFiltered() {
+    const allIds = completedFilteredAttempts.map((attempt) => attempt.id);
+    const allSelected = allIds.length > 0 && allIds.every((id) => reviewAttemptIds.includes(id));
+    setReviewAttemptIds(allSelected ? reviewAttemptIds.filter((id) => !allIds.includes(id)) : Array.from(new Set([...reviewAttemptIds, ...allIds])));
+  }
+
+  async function startReview() {
+    if (reviewAttemptIds.length === 0) {
+      setErrorMessage("請先選擇至少一回已完成的作答紀錄。");
+      return;
+    }
+    if (!includeWrong && !includeExamStarred && !includeReviewStarred) {
+      setErrorMessage("請至少勾選錯題、模考星號或檢討星號其中一項。");
+      return;
+    }
+    setStartingReview(true);
     setErrorMessage("");
-    const supabase = getSupabaseBrowserClient();
-    const { data, error } = await supabase.rpc("start_wrong_review_attempt", {
-      p_years: yearFilter === "all" ? null : [yearFilter],
-      p_subjects: subjectFilter === "all" ? null : [subjectFilter],
+    const { data, error } = await getSupabaseBrowserClient().rpc("start_review_attempt", {
+      p_source_attempt_ids: reviewAttemptIds,
+      p_include_wrong: includeWrong,
+      p_include_exam_starred: includeExamStarred,
+      p_include_review_starred: includeReviewStarred,
+      p_custom_title: reviewTitle || null,
     });
     if (error) {
-      setErrorMessage(`無法建立錯題練習：${error.message}`);
-      setStartingWrong(false);
+      setErrorMessage(`無法建立複習組卷：${error.message}`);
+      setStartingReview(false);
       return;
     }
     router.push(`/exam/${(data as StartAttemptResponse).attempt_id}`);
   }
 
-  return (
-    <section className="container page-section">
-      <div className="eyebrow">作答 Log</div>
-      <h1>歷史紀錄</h1>
-      <p className="muted">依年度、練習方式與科目篩選；點進已交卷紀錄，可重看完整題目、所有選項、你的答案與正確答案。</p>
+  function openRecord(attempt: AttemptHistoryItem) {
+    if (attempt.status === "in_progress") {
+      router.push(`/exam/${attempt.id}`);
+      return;
+    }
+    setPendingReviewAttempt(attempt);
+  }
 
-      {summaries.some((summary) => summary.is_complete) && (
-        <div className="year-summary-grid">
-          {summaries.filter((summary) => summary.is_complete).map((summary) => (
-            <article className="year-summary-card" key={summary.exam_year_roc}>
-              <span>{summary.exam_year_roc} 年四卷完成</span>
-              <strong>{summary.total_score} / {summary.max_score}</strong>
-              <div><span>司法官 {summary.judicial_cutoff ?? "—"}</span><span>律師 {summary.lawyer_cutoff ?? "—"}</span></div>
-            </article>
-          ))}
-        </div>
-      )}
+  function confirmOpenRecord() {
+    if (!pendingReviewAttempt) return;
+    const attemptId = pendingReviewAttempt.id;
+    setPendingReviewAttempt(null);
+    router.push(`/results/${attemptId}`);
+  }
 
-      <div className="history-toolbar">
-        <label><span>方式</span><select value={modeFilter} onChange={(event) => setModeFilter(event.target.value as "all" | AttemptMode)}><option value="all">全部</option><option value="official_paper">年度卷</option><option value="subject_pool">科目卷</option><option value="wrong_review">錯題重刷</option></select></label>
-        <label><span>年度</span><select value={yearFilter} onChange={(event) => setYearFilter(event.target.value === "all" ? "all" : Number(event.target.value))}><option value="all">全部</option>{availableYears.map((year) => <option key={year} value={year}>{year} 年</option>)}</select></label>
-        <label><span>科目</span><select value={subjectFilter} onChange={(event) => setSubjectFilter(event.target.value)}><option value="all">全部</option>{availableSubjects.map((subject) => <option key={subject} value={subject}>{subject}</option>)}</select></label>
-        <label><span>結果</span><select value={resultFilter} onChange={(event) => setResultFilter(event.target.value as typeof resultFilter)}><option value="all">全部</option><option value="wrong">只顯示有錯題</option><option value="perfect">全對</option><option value="in_progress">作答中</option></select></label>
-        <button type="button" className="button primary" disabled={startingWrong} onClick={() => void startWrongReview()}>{startingWrong ? "整理錯題中…" : "只刷錯題（不計時）"}</button>
+  return <section className="container page-section">
+    <div className="eyebrow">作答回合</div>
+    <h1>歷史紀錄</h1>
+    <p className="muted">每一筆代表一次完整作答回合。可依卷種、模考日期與得分率排序篩選，再挑選回合建立複習組卷。</p>
+
+    {summaries.some((summary) => summary.is_complete) && <div className="year-summary-grid">
+      {summaries.filter((summary) => summary.is_complete).map((summary) => <article className="year-summary-card" key={summary.exam_year_roc}><span>{summary.exam_year_roc} 年四卷完成</span><strong>{summary.total_score} / {summary.max_score}</strong><div><span>司法官 {summary.judicial_cutoff ?? "—"}</span><span>律師 {summary.lawyer_cutoff ?? "—"}</span></div></article>)}
+    </div>}
+
+    <div className="history-toolbar history-toolbar-v31">
+      <label><span>方式</span><select value={modeFilter} onChange={(event) => setModeFilter(event.target.value as "all" | AttemptMode)}><option value="all">全部</option><option value="official_paper">年度卷</option><option value="subject_pool">自組模考</option><option value="wrong_review">複習組卷</option></select></label>
+      <label><span>年度</span><select value={yearFilter} onChange={(event) => setYearFilter(event.target.value === "all" ? "all" : Number(event.target.value))}><option value="all">全部</option>{availableYears.map((year) => <option key={year} value={year}>{year} 年</option>)}</select></label>
+      <label><span>卷種</span><select value={paperKindFilter} onChange={(event) => setPaperKindFilter(event.target.value)}><option value="all">全部</option>{availablePaperKinds.map((kind) => <option key={kind} value={kind}>{kind}</option>)}</select></label>
+      <label><span>模考日期起</span><input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} /></label>
+      <label><span>模考日期迄</span><input type="date" value={dateTo} onChange={(event) => setDateTo(event.target.value)} /></label>
+      <label><span>最低得分率</span><input type="number" min="0" max="100" placeholder="0" value={minRate} onChange={(event) => setMinRate(event.target.value)} /></label>
+      <label><span>最高得分率</span><input type="number" min="0" max="100" placeholder="100" value={maxRate} onChange={(event) => setMaxRate(event.target.value)} /></label>
+      <label><span>排序</span><select value={sortKey} onChange={(event) => setSortKey(event.target.value as SortKey)}><option value="date_desc">日期：新到舊</option><option value="date_asc">日期：舊到新</option><option value="score_desc">分數：高到低</option><option value="score_asc">分數：低到高</option></select></label>
+    </div>
+
+    <section className="review-builder-card">
+      <div className="review-builder-heading"><div><div className="eyebrow">複習組卷</div><h2>從指定回合抓題</h2><p>條件採聯集：符合任一勾選條件的題目都會納入，重複題只出現一次。</p></div><button type="button" className="button secondary compact" onClick={selectAllFiltered}>{completedFilteredAttempts.length > 0 && completedFilteredAttempts.every((attempt) => reviewAttemptIds.includes(attempt.id)) ? "取消目前全部" : "選取目前篩選結果"}</button></div>
+      <div className="review-condition-row">
+        <label><input type="checkbox" checked={includeWrong} onChange={(event) => setIncludeWrong(event.target.checked)} />錯題</label>
+        <label><input type="checkbox" checked={includeExamStarred} onChange={(event) => setIncludeExamStarred(event.target.checked)} />模考星號</label>
+        <label><input type="checkbox" checked={includeReviewStarred} onChange={(event) => setIncludeReviewStarred(event.target.checked)} />檢討星號</label>
+        <label className="review-title-input"><span>名稱（選填）</span><input value={reviewTitle} onChange={(event) => setReviewTitle(event.target.value)} placeholder="預設依勾選條件命名" /></label>
+        <button type="button" className="button primary" disabled={startingReview || reviewAttemptIds.length === 0} onClick={() => void startReview()}>{startingReview ? "建立中…" : `建立複習組卷（${reviewAttemptIds.length} 回）`}</button>
       </div>
-
-      {loading && <p className="muted">正在讀取紀錄…</p>}
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
-
-      {!loading && filteredAttempts.length === 0 ? (
-        <div className="empty-state"><h2>目前沒有符合條件的紀錄</h2><p>調整篩選或開始一份新測驗。</p><Link className="button primary" href="/practice">選擇試卷</Link></div>
-      ) : (
-        <div className="history-list">
-          {filteredAttempts.map((attempt) => {
-            const isLive = attempt.status === "in_progress";
-            const wrongCount = attempt.correct_count === null || attempt.unanswered_count === null ? null : attempt.question_count - attempt.correct_count - attempt.unanswered_count;
-            return (
-              <Link className="history-card" href={isLive ? `/exam/${attempt.id}` : `/results/${attempt.id}`} key={attempt.id}>
-                <div>
-                  <div className="history-card-labels"><span className={`status-pill ${attempt.status}`}>{statusText(attempt.status)}</span><span className="mode-pill">{modeText(attempt.attempt_mode)}</span></div>
-                  <h2>{attempt.title}</h2>
-                  <p>{attempt.selected_subjects.length ? attempt.selected_subjects.join("、") : attempt.paper_title ?? ""}</p>
-                </div>
-                <div className="history-stats">
-                  <span>{new Date(attempt.started_at).toLocaleString("zh-TW")}</span>
-                  <span>{attempt.is_timed ? `設定 ${attempt.duration_minutes} 分鐘` : "不計時"} · 實際 {formatDuration(attempt.elapsed_seconds)}</span>
-                  {wrongCount !== null && <span>未滿分 {wrongCount} · 未答 {attempt.unanswered_count}</span>}
-                  <strong>{attempt.score === null ? "—" : `${attempt.score} / ${attempt.max_score}`}</strong>
-                  {!isLive && <span className="history-review-link">查看完整題目與選項 →</span>}
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      )}
     </section>
-  );
+
+    {loading && <p className="muted">正在讀取紀錄…</p>}
+    {errorMessage && <p className="error-message">{errorMessage}</p>}
+
+    {!loading && filteredAttempts.length === 0 ? <div className="empty-state"><h2>目前沒有符合條件的紀錄</h2><p>調整篩選或開始一份新測驗。</p><Link className="button primary" href="/practice">選擇試卷</Link></div> : <div className="history-list">
+      {filteredAttempts.map((attempt) => {
+        const isLive = attempt.status === "in_progress";
+        const wrongCount = attempt.correct_count === null || attempt.unanswered_count === null ? null : attempt.question_count - attempt.correct_count - attempt.unanswered_count;
+        const rate = scoreRate(attempt);
+        return <article className="history-card history-card-v31" key={attempt.id}>
+          <label className={`attempt-select ${isLive ? "disabled" : ""}`} title={isLive ? "作答中的回合不能作為複習來源" : "選為複習來源"}>
+            <input type="checkbox" disabled={isLive} checked={reviewAttemptIds.includes(attempt.id)} onChange={() => toggleReviewAttempt(attempt.id)} />
+          </label>
+          <div className="history-card-main">
+            <div className="history-card-labels"><span className={`status-pill ${attempt.status}`}>{statusText(attempt.status)}</span><span className="mode-pill">{modeText(attempt.attempt_mode)}</span>{attempt.selected_paper_kinds.map((kind) => <span className="paper-kind-pill" key={kind}>{kind}</span>)}</div>
+            <h2>{attempt.title}</h2>
+            <p>{attempt.selected_subjects.length ? attempt.selected_subjects.join("、") : attempt.paper_title ?? ""}</p>
+            <div className="history-annotation-counts"><span>模考星號 {attempt.exam_star_count}</span><span>檢討星號 {attempt.review_star_count}</span>{attempt.selection_strategy === "recent_10_wrong_priority" && <span>近 10 回錯題優先</span>}</div>
+          </div>
+          <div className="history-stats">
+            <span>模考日期 {new Date(`${attempt.exam_date}T00:00:00`).toLocaleDateString("zh-TW")}</span>
+            <span>開始 {new Date(attempt.started_at).toLocaleString("zh-TW")}</span>
+            <span>{attempt.is_timed ? `設定 ${attempt.duration_minutes} 分鐘` : "不計時"} · 實際 {formatDuration(attempt.elapsed_seconds)}</span>
+            {wrongCount !== null && <span>未滿分 {wrongCount} · 未答 {attempt.unanswered_count}</span>}
+            <strong>{attempt.score === null ? "—" : `${attempt.score} / ${attempt.max_score}`}</strong>
+            {rate !== null && <span>得分率 {rate.toFixed(1)}%</span>}
+            <button type="button" className="button secondary compact" onClick={() => openRecord(attempt)}>{isLive ? "繼續作答" : "查看作答紀錄"}</button>
+          </div>
+        </article>;
+      })}
+    </div>}
+
+    {pendingReviewAttempt && <div className="modal-backdrop" role="presentation" onMouseDown={() => setPendingReviewAttempt(null)}>
+      <div className="warning-modal" role="dialog" aria-modal="true" aria-labelledby="review-warning-title" onMouseDown={(event) => event.stopPropagation()}>
+        <div className="warning-icon">!</div>
+        <h2 id="review-warning-title">即將查看完整作答紀錄</h2>
+        <p>這會顯示該回合的完整題目、所有選項、你的答案與正確答案。建議確認已完成本次作答，再進入檢討。</p>
+        <div className="warning-attempt-summary"><strong>{pendingReviewAttempt.title}</strong><span>{new Date(pendingReviewAttempt.started_at).toLocaleString("zh-TW")}</span></div>
+        <div className="modal-actions"><button type="button" className="button secondary" onClick={() => setPendingReviewAttempt(null)}>取消</button><button type="button" className="button primary" onClick={confirmOpenRecord}>確認查看</button></div>
+      </div>
+    </div>}
+  </section>;
 }

@@ -1,4 +1,4 @@
-"""Offline release gate for Justitia's playground v3.0.0.
+"""Offline release gate for Justitia's playground v3.1.0.
 
 Validates the 105-114 corpus, subject mapping, old-format multiple-choice
 questions, scoring totals, official corrections, and generated SQL artifacts.
@@ -148,9 +148,31 @@ def main() -> None:
     expected_sql = [
         "00_v3_schema_and_rpc.sql", "01_exam_papers.sql", "23_cutoffs_105_114.sql", "99_verify_v3.sql"
     ] + [f"{index:02d}_questions.sql" for index in range(2, 16)] + [f"{index:02d}_answers.sql" for index in range(16, 23)]
+    expected_sql += ["24_v3_1_attempt_review_workflow.sql", "25_verify_v3_1.sql"]
     missing_sql = [name for name in expected_sql if not (SQL_DIR / name).exists()]
     if missing_sql:
         fail(f"Missing SQL Editor chunks: {missing_sql}")
+
+    v31_sql = (SQL_DIR / "24_v3_1_attempt_review_workflow.sql").read_text(encoding="utf-8")
+    required_v31_tokens = [
+        "attempt_question_annotations",
+        "question_review_annotations",
+        "start_custom_subject_attempt",
+        "start_review_attempt",
+        "save_exam_annotation",
+        "save_review_annotation",
+        "recent_10_wrong_priority",
+        "recent_scope_attempts",
+        "recent_wrong_pool",
+        "limit 10",
+    ]
+    missing_tokens = [token for token in required_v31_tokens if token not in v31_sql]
+    if missing_tokens:
+        fail(f"v3.1 migration is missing required features: {missing_tokens}")
+    if "'wrong_priority_50'" in v31_sql and "where selection_strategy = 'wrong_priority_50'" not in v31_sql:
+        fail("Legacy wrong_priority_50 strategy remains outside the compatibility migration")
+    if "where aq.attempt_id = v_attempt.id\n      where aq.attempt_id" in v31_sql:
+        fail("Duplicate WHERE clause detected in v3.1 migration")
 
     audit = (
         questions.groupby(
@@ -168,10 +190,10 @@ def main() -> None:
         quoting=csv.QUOTE_MINIMAL,
     )
 
-    print("PASS: v3.0.0 release gate")
+    print("PASS: v3.1.0 release gate")
     print("  papers=40 questions=2968 single=2904 multiple=64")
     print("  years=105-114 points=600/year corrections=15 bonus=3")
-    print("  subject mappings, civil splits, SQL chunks, and 111 Q50 correction verified")
+    print("  subject mappings, v3.1 recent-ten-attempt workflows, SQL chunks, and 111 Q50 correction verified")
 
 
 if __name__ == "__main__":
