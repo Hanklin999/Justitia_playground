@@ -1,0 +1,1 @@
+Previous V2 specifications and one-off recovery SQL were intentionally omitted from the v3.0.0 release package to prevent accidental execution. Git history remains the source of record for legacy artifacts.

@@ -1,44 +1,38 @@
-# Supabase V2 設定
+# Supabase v3.0.0 設定
 
-Publishable Key 可放在瀏覽器；真正的資料安全依賴 RLS 與 Database Functions。不要把 Secret Key 或 `service_role` key 放進前端、GitHub 或聊天室。
+Publishable Key 可供瀏覽器使用；資料安全依賴 RLS 與 Database Functions。不要把 Secret Key 或 `service_role` key 放進前端、GitHub 或公開文件。
 
-## 1. V1 升級 V2
+## V2／V2.1 升級到 v3.0.0
 
-到 Supabase Dashboard → **SQL Editor**，建議分兩次執行：
+Supabase SQL Editor 有單次查詢大小限制，因此不要一次貼整個 2.4 MB seed。請依序執行 `supabase/sql_editor_v3/`：
 
-1. `supabase/v2_step_1_schema.sql`：資料表、欄位、RLS、RPC、計時與歷史分析。
-2. `supabase/v2_step_2_seed.sql`：110–114 年 20 卷、1,500 題與 private answer keys。
+1. `00_v3_schema_and_rpc.sql`
+2. `01_exam_papers.sql`
+3. `02_questions.sql` 至 `15_questions.sql`
+4. `16_answers.sql` 至 `22_answers.sql`
+5. `23_cutoffs_105_114.sql`
+6. `99_verify_v3.sql`
 
-兩步完成後執行 `supabase/v2_step_3_verify.sql`。`supabase/setup_v2.sql` 是前兩步合併版，SQL Editor 能正常承受大型查詢時也可一次執行。
+每個檔案都可安全重跑。Migration 使用 `if not exists`、`create or replace`、policy 重建與 upsert，不會刪除既有使用者紀錄。
 
-Migration 採 repeat-safe／upsert 寫法，可接在既有 V1 schema 後執行，並保留既有使用者與歷史紀錄。
+預期驗證：
 
-完成後驗證：
-
-```sql
-select count(*) as papers from public.exam_papers;
-select count(*) as questions from public.questions;
-select count(*) as answer_keys from private.question_answer_keys;
-select count(*) as subject_configs from public.subject_exam_config;
-select exam_year_roc, judicial_cutoff, lawyer_cutoff
-from public.exam_cutoffs
-order by exam_year_roc;
+```text
+papers = 40
+questions = 2968
+answer_keys = 2968
+multiple_choice = 64
+bonus_questions = 3
+cutoff_years = 10
 ```
 
-預期：
+完整操作：`supabase/V3_UPGRADE.md`
 
-- `papers = 20`
-- `questions = 1500`
-- `answer_keys = 1500`
-- `subject_configs > 0`
-- `exam_cutoffs = 5` 個年度
-- `111-2301-050.accepted_answers = {A,B}`
+## Email Magic Link
 
-## 2. Email Magic Link
+Supabase Dashboard → Authentication → URL Configuration：
 
-Supabase Dashboard → **Authentication → URL Configuration**：
-
-### 本機開發
+### 本機
 
 - Site URL：`http://localhost:3000`
 - Redirect URLs：`http://localhost:3000/**`
@@ -52,20 +46,11 @@ Supabase Dashboard → **Authentication → URL Configuration**：
 
 登入信會導回 `/auth/complete`，成功後前往 `/practice`。
 
-## 3. 本機驗證
+## 安全設計
 
-```powershell
-npm.cmd install
-npm.cmd run check:supabase
-npm.cmd run build
-npm.cmd run dev
-```
-
-## 4. V2 安全設計
-
-- `public.questions` 不存官方答案。
-- 官方答案存於 `private.question_answer_keys`，並以 `accepted_answers` 支援複數有效答案。
-- 開始正式卷、自組卷、錯題重刷、保存答案、保存筆記、累積題目時間、交卷與計分全部透過 RPC。
-- 使用者只能讀取自己的 attempt、作答、星號、筆記與題目活動。
-- 正式計時使用 server-generated `expires_at`，不是依賴使用者電腦時間。
-- 自組卷與錯題卷會把抽出的題目順序固定在 `attempt_questions`。
+- `public.questions` 不含官方答案。
+- 官方答案位於 `private.question_answer_keys`，支援複數有效答案與送分。
+- 開始測驗、載入題目、保存答案／筆記、累積時間、交卷與計分均透過 RPC。
+- 使用者只能讀寫自己的 attempt 與 activity。
+- 正式計時使用 server-generated `expires_at`。
+- 交卷後 `get_attempt_result` 才回傳答案與完整選項。

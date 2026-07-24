@@ -1,13 +1,15 @@
 {
   "name": "justitia-playground",
-  "version": "0.1.0",
+  "version": "3.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "check:supabase": "node --env-file=.env.local scripts/check-supabase.mjs"
+    "check:supabase": "node --env-file=.env.local scripts/check-supabase.mjs",
+    "validate:data": "python scripts/validate_v3.py",
+    "check:syntax": "node scripts/check-ts-syntax.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.7",

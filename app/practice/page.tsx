@@ -53,7 +53,7 @@ export default function PracticePage() {
 
       if (!active) return;
       if (paperError || configError) {
-        setErrorMessage(`尚未讀取到 V2 題庫設定：${paperError?.message ?? configError?.message}`);
+        setErrorMessage(`尚未讀取到 v3.0.0 題庫設定：${paperError?.message ?? configError?.message}`);
       } else {
         const nextPapers = (paperData ?? []) as ExamPaper[];
         setPapers(nextPapers);
@@ -85,15 +85,24 @@ export default function PracticePage() {
   }, [civilSubsubjects, selectedSubjects, selectedSubsubjects, subjectConfigs]);
 
   function effectiveTargetCount(config: SubjectConfig): number {
-    if (selectedYears.length === 1 && selectedYears[0] === 111) {
-      if (config.config_key === "民法/財產法") return 34;
-      if (config.config_key === "民法/親屬繼承") return 16;
-    }
-    return config.target_question_count;
+    if (selectedYears.length !== 1) return config.target_question_count;
+    const year = selectedYears[0];
+    const oldFormatCounts: Record<number, Record<string, number>> = {
+      105: { "憲法": 18, "行政法": 32, "國際公法": 10, "國際私法": 10, "民法": 46, "民法/財產法": 37, "民法/親屬繼承": 9, "民事訴訟法": 28, "刑法": 32, "刑事訴訟法": 23, "法律倫理": 15 },
+      106: { "憲法": 18, "行政法": 32, "國際公法": 10, "國際私法": 10, "民法": 46, "民法/財產法": 34, "民法/親屬繼承": 12, "民事訴訟法": 28, "刑法": 32, "刑事訴訟法": 23, "法律倫理": 15 },
+      111: { "民法/財產法": 34, "民法/親屬繼承": 16 },
+    };
+    return oldFormatCounts[year]?.[config.config_key] ?? config.target_question_count;
+  }
+
+  function effectiveSecondsPerQuestion(config: SubjectConfig): number {
+    const sourcePapers = papers.filter((paper) => selectedYears.includes(paper.exam_year_roc) && paper.paper_code === config.paper_code);
+    if (sourcePapers.length === 0) return Number(config.seconds_per_question);
+    return sourcePapers.reduce((sum, paper) => sum + (paper.duration_minutes * 60) / paper.question_count, 0) / sourcePapers.length;
   }
 
   const estimatedQuestions = activeConfigs.reduce((sum, config) => sum + effectiveTargetCount(config), 0);
-  const estimatedSeconds = activeConfigs.reduce((sum, config) => sum + effectiveTargetCount(config) * Number(config.seconds_per_question), 0);
+  const estimatedSeconds = activeConfigs.reduce((sum, config) => sum + effectiveTargetCount(config) * effectiveSecondsPerQuestion(config), 0);
   const estimatedMinutes = estimatedQuestions > 0 ? Math.ceil(estimatedSeconds / 60) : 0;
 
   function requireLogin(): boolean {
@@ -167,7 +176,7 @@ export default function PracticePage() {
 
   return (
     <section className="container page-section">
-      <div className="eyebrow">近五年司律一試題庫</div>
+      <div className="eyebrow">近十年司律一試題庫</div>
       <h1>選擇你的練習方式</h1>
       <p className="muted">正式年度卷保留原始題序與時長；科目模式會從所選年度題池隨機抽出對應題數。</p>
 

@@ -91,7 +91,7 @@ export default function HistoryPage() {
     <section className="container page-section">
       <div className="eyebrow">作答 Log</div>
       <h1>歷史紀錄</h1>
-      <p className="muted">依年度、練習方式與科目篩選；錯題可以另外建立不計時練習。</p>
+      <p className="muted">依年度、練習方式與科目篩選；點進已交卷紀錄，可重看完整題目、所有選項、你的答案與正確答案。</p>
 
       {summaries.some((summary) => summary.is_complete) && (
         <div className="year-summary-grid">
@@ -133,8 +133,9 @@ export default function HistoryPage() {
                 <div className="history-stats">
                   <span>{new Date(attempt.started_at).toLocaleString("zh-TW")}</span>
                   <span>{attempt.is_timed ? `設定 ${attempt.duration_minutes} 分鐘` : "不計時"} · 實際 {formatDuration(attempt.elapsed_seconds)}</span>
-                  {wrongCount !== null && <span>答錯 {wrongCount} · 未答 {attempt.unanswered_count}</span>}
+                  {wrongCount !== null && <span>未滿分 {wrongCount} · 未答 {attempt.unanswered_count}</span>}
                   <strong>{attempt.score === null ? "—" : `${attempt.score} / ${attempt.max_score}`}</strong>
+                  {!isLive && <span className="history-review-link">查看完整題目與選項 →</span>}
                 </div>
               </Link>
             );

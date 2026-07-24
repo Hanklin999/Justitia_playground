@@ -1,95 +1,96 @@
-# Justitia_playground｜Justitia's playground
+# Justitia's playground v3.0.0
 
 > 司律陪考資料庫
 
-司法官／律師第一試刷題與正式單卷模擬平台。V2 收錄民國 110–114 年共 20 份官方綜合法學試卷、1,500 題，支援「依年度正式卷」與「依科目自組卷」兩種模式。
+司法官／律師第一試刷題與單卷模擬平台。v3.0.0 收錄民國 105–114 年考選部官方考古題，共 40 卷、2,968 題。
 
-## V2 已完成
+## v3.0.0 重點
 
-- Next.js App Router 藍白、手機優先介面
-- Supabase Email Magic Link
-- 110–114 年正式試卷，共 20 卷、1,500 題
-- 依年度：年份 → 正式試卷 → 依官方時長作答
-- 依科目：複選年份與科目，從題池抽取對應題數
-- 自組卷按原正式卷平均每題秒數計時；錯題重刷不計時
-- 公法卷、民事法卷、商事法卷、刑事法卷快速選擇
-- 題號星號標記「不會」與私人筆記
-- 逐題答案、星號、筆記與活躍時間自動保存
-- 手動交卷／逾時交卷與歷史考試 Log
-- 結果顯示開始、交卷、總花費時間與每題約略活躍時間
-- 各科／子科目答對、答錯、未答分布
-- 同年度四張正式卷完成後顯示總分與歷史門檻比較
-- 歷史紀錄依年度、模式、科目篩選
-- 針對錯題建立不計時重刷
-- 官方答案存於 private schema，支援複數有效答案，前端無法在交卷前取得
-- RLS 與 Security Definer RPC
-- 考選部 PDF → CSV Python ETL
+- 題庫擴充至近十年：105–114 年。
+- 年度模式保留官方題序、題數、配分與考試時長。
+- 科目模式可複選年度與科目，自動由題池組卷並按來源試卷平均秒數計時。
+- 105–106 年完整支援 A–E 五選項複選題與部分得分。
+- 題幹字級縮小、選項字級放大，強化長題閱讀與作答辨識。
+- 作答中可加星號、寫私人筆記並自動保存。
+- 結果與歷史紀錄可重看完整題目、A–E 選項、你的答案、可接受答案、單題得分與筆記。
+- 顯示開始、交卷、總耗時與每題活躍時間。
+- 顯示各科與民法子科目的未滿分／未答分布。
+- 同年度四卷完成後顯示 600 分總分及司法官／律師歷史門檻。
+- 錯題可依年度與科目建立不計時重刷。
+- 官方答案放在 private schema，交卷前不由公開 API 回傳。
 
-## 快速升級 V2
+## 資料驗證
 
-既有 Supabase V1 專案只需在 SQL Editor 執行：
-
-```text
-supabase/setup_v2.sql
+```powershell
+python scripts/validate_v3.py
 ```
 
-這份檔案會：
+預期：
 
-1. 新增 V2 schema、RLS 與 RPC
-2. upsert 110–114 年 20 卷、1,500 題與 private answer keys
-3. 保留既有使用者、歷史 attempt 與作答紀錄
+```text
+PASS: v3.0.0 release gate
+papers=40 questions=2968 single=2904 multiple=64
+```
 
-接著本機執行：
+## Supabase 升級
+
+既有 V2／V2.1 資料庫請依序在 SQL Editor 執行：
+
+1. `supabase/sql_editor_v3/00_v3_schema_and_rpc.sql`
+2. `01_exam_papers.sql`
+3. `02_questions.sql` 至 `15_questions.sql`
+4. `16_answers.sql` 至 `22_answers.sql`
+5. `23_cutoffs_105_114.sql`
+6. `99_verify_v3.sql`
+
+全部採 repeat-safe／upsert 寫法，既有使用者、作答、星號與筆記不會被刪除。
+
+驗證預期：
+
+- papers = 40
+- questions = 2968
+- answer_keys = 2968
+- multiple_choice = 64
+- bonus_questions = 3
+- cutoff_years = 10
+
+完整步驟：`supabase/V3_UPGRADE.md`
+
+## 本機啟動
 
 ```powershell
 npm.cmd install
+npm.cmd run validate:data
+npm.cmd run typecheck
 npm.cmd run build
 npm.cmd run dev
 ```
 
-開啟 `http://localhost:3000`。
+瀏覽：`http://localhost:3000`
 
-## Python ETL
+## 環境變數
 
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -r etl/requirements.txt
-python etl/extract_moex.py
-python etl/generate_supabase_seed.py
+複製 `.env.example` 為 `.env.local`：
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLISHABLE_KEY
 ```
 
-主要輸出：
+Publishable Key 可以提供給前端；Secret／service-role key 不可放入前端、GitHub 或公開文件。
 
-- `data/processed/questions_110_114.csv`
-- `data/processed/papers_110_114.csv`
-- `data/processed/qa_report.csv`
-- `data/review/questions_review_template.csv`
-- `supabase/migrations/0005_seed_110_114.sql`
+## 主要資料輸出
 
-## 題目分類
+- `data/processed/questions_105_114.csv`
+- `data/processed/papers_105_114.csv`
+- `data/processed/qa_report_105_114.csv`
+- `data/processed/subject_mapping_audit_v3.csv`
+- `data/processed/official_corrections_audit_105_114.csv`
+- `supabase/sql_editor_v3/`
 
-V2 依官方試卷題號自動填入 `subject_primary` 與 `subsubject_primary`。未命中規則的題目會標為「未分類」。目前 1,500 題全部命中既定規則。
+## 技術架構
 
-後續仍需人工標記或複核：
-
-- 章節與考點
-- 法條
-- 跨科題目的次要科目
-- 答案更正、送分或複數答案（ETL 已納入已知官方更正）
-- PDF 抽取的文字與特殊符號
-
-## 計時定義
-
-- 正式卷：使用該年度該卷官方時長。
-- 科目自組卷：依原卷 `正式秒數 ÷ 正式題數 × 抽取題數` 計算。
-- 民事法卷：民法 50 題＋民事訴訟法 30 題，合計 80 題／100 分鐘。
-- 錯題重刷：不計時。
-- 每題時間是使用者停留在該題頁面的累積活躍秒數，用於學習分析，不是防作弊的精密監考數據。
-- 111 年公法卷第 50 題依考選部更正公告，A 或 B 均計分。
-
-## 重要安全原則
-
-Publishable Key 可出現在前端；Secret Key／`service_role` 不可。官方答案不在公開題目表，計分只透過資料庫函式執行。
-
-原始題目與標準答案來源：中華民國考選部考畢試題查詢平臺；完整來源網址位於 `etl/manifest.json`。
+- Next.js 16 + React 19 + TypeScript
+- Supabase PostgreSQL、Auth、RLS、Database Functions
+- Netlify deployment
+- Python + pandas + PyMuPDF／pdfplumber ETL

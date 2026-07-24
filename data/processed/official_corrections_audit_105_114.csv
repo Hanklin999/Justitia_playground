@@ -1,0 +1,16 @@
+﻿question_id,question_type,question_points,original_answer,accepted_answers,is_bonus,official_answer_status,official_notice_url
+105-3301-013,single_choice,2.0,C,A|C|AC,False,corrected_multiple,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=105110&q=1&s=0201&t=M
+105-3301-033,single_choice,2.0,C,A|C,False,corrected_multiple,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=105110&q=1&s=0201&t=M
+105-1301-070,multiple_choice,3.0,ABD,ABD,True,bonus,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=105110&q=1&s=0401&t=M
+106-2301-037,single_choice,2.0,C,B|C|BC,False,corrected_multiple,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0101&t=M
+106-3301-066,multiple_choice,3.0,BCD,BD|BCD,False,corrected_multiple,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0201&t=M
+106-1301-059,single_choice,2.0,B,B,True,bonus,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0401&t=M
+106-1301-069,multiple_choice,3.0,ACE,AC|ACE,False,corrected_multiple,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0401&t=M
+107-2301-036,single_choice,2.0,C,C|D|CD,False,corrected_multiple,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=107120&q=1&s=0101&t=M
+107-4301-019,single_choice,2.0,B,B|C,False,corrected_multiple,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=107120&q=1&s=0301&t=M
+107-1301-056,single_choice,2.0,C,A|C,False,corrected_multiple,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=107120&q=1&s=0401&t=M
+108-2301-064,single_choice,2.0,A,B,False,corrected_multiple,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=108120&q=1&s=0101&t=M
+109-1301-020,single_choice,2.0,D,B|D|BD,False,corrected_multiple,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=109120&q=1&s=0401&t=M
+110-2301-062,single_choice,2.0,B,B|C|BC,False,corrected_multiple,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=110120&q=1&s=0101&t=M
+110-1301-034,single_choice,2.0,B,B,True,bonus,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=110120&q=1&s=0401&t=M
+111-2301-050,single_choice,2.0,A,A|B,False,corrected_multiple,https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=111120&q=1&s=0101&t=M

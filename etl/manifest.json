@@ -1,7 +1,580 @@
 {
   "source": "考選部考畢試題查詢平臺",
-  "range": "ROC 110-114",
+  "range": "ROC 105-114",
   "papers": [
+    {
+      "exam_year_roc": 105,
+      "exam_year_ad": 2016,
+      "exam_code": "105110",
+      "exam_name": "105年公務人員特種考試司法官考試（第一試）及105年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "105-2301",
+      "paper_order": 1,
+      "paper_code": "2301",
+      "paper_group": "綜合法學(一)",
+      "paper_title": "綜合法學(一)（憲法、行政法、國際公法、國際私法）",
+      "included_subjects": "憲法|行政法|國際公法|國際私法",
+      "duration_minutes": 90,
+      "expected_question_count": 70,
+      "points_per_question": 2.142857,
+      "max_score": 150,
+      "question_pdf": "data/raw/105/paper_1_const_admin_intl_questions.pdf",
+      "answer_pdf": "data/raw/105/paper_1_const_admin_intl_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=105110&q=1&s=0101&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=105110&q=1&s=0101&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=105110&y=2016"
+    },
+    {
+      "exam_year_roc": 105,
+      "exam_year_ad": 2016,
+      "exam_code": "105110",
+      "exam_name": "105年公務人員特種考試司法官考試（第一試）及105年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "105-3301",
+      "paper_order": 2,
+      "paper_code": "3301",
+      "paper_group": "綜合法學(二)",
+      "paper_title": "綜合法學(二)（民法、民事訴訟法）",
+      "included_subjects": "民法|民事訴訟法",
+      "duration_minutes": 100,
+      "expected_question_count": 74,
+      "points_per_question": 2.162162,
+      "max_score": 160,
+      "question_pdf": "data/raw/105/paper_2_civil_questions.pdf",
+      "answer_pdf": "data/raw/105/paper_2_civil_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=105110&q=1&s=0201&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=105110&q=1&s=0201&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=105110&y=2016",
+      "answer_overrides": {
+        "13": {
+          "accepted_answers": [
+            "A",
+            "C",
+            "AC"
+          ],
+          "official_answer_status": "corrected_multiple",
+          "official_notice_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=105110&q=1&s=0201&t=M"
+        },
+        "33": {
+          "accepted_answers": [
+            "A",
+            "C"
+          ],
+          "official_answer_status": "corrected_multiple",
+          "official_notice_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=105110&q=1&s=0201&t=M"
+        }
+      }
+    },
+    {
+      "exam_year_roc": 105,
+      "exam_year_ad": 2016,
+      "exam_code": "105110",
+      "exam_name": "105年公務人員特種考試司法官考試（第一試）及105年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "105-4301",
+      "paper_order": 3,
+      "paper_code": "4301",
+      "paper_group": "綜合法學(二)",
+      "paper_title": "綜合法學(二)（公司法、保險法、票據法、證券交易法、強制執行法、法學英文）",
+      "included_subjects": "公司法|保險法|票據法|證券交易法|強制執行法|法學英文",
+      "duration_minutes": 80,
+      "expected_question_count": 70,
+      "points_per_question": 2.0,
+      "max_score": 140,
+      "question_pdf": "data/raw/105/paper_3_commercial_questions.pdf",
+      "answer_pdf": "data/raw/105/paper_3_commercial_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=105110&q=1&s=0301&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=105110&q=1&s=0301&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=105110&y=2016"
+    },
+    {
+      "exam_year_roc": 105,
+      "exam_year_ad": 2016,
+      "exam_code": "105110",
+      "exam_name": "105年公務人員特種考試司法官考試（第一試）及105年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "105-1301",
+      "paper_order": 4,
+      "paper_code": "1301",
+      "paper_group": "綜合法學(一)",
+      "paper_title": "綜合法學(一)（刑法、刑事訴訟法、法律倫理）",
+      "included_subjects": "刑法|刑事訴訟法|法律倫理",
+      "duration_minutes": 90,
+      "expected_question_count": 70,
+      "points_per_question": 2.142857,
+      "max_score": 150,
+      "question_pdf": "data/raw/105/paper_4_criminal_questions.pdf",
+      "answer_pdf": "data/raw/105/paper_4_criminal_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=105110&q=1&s=0401&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=105110&q=1&s=0401&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=105110&y=2016",
+      "answer_overrides": {
+        "70": {
+          "is_bonus": true,
+          "official_answer_status": "bonus",
+          "official_notice_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=105110&q=1&s=0401&t=M"
+        }
+      }
+    },
+    {
+      "exam_year_roc": 106,
+      "exam_year_ad": 2017,
+      "exam_code": "106120",
+      "exam_name": "106年公務人員特種考試司法官考試（第一試）及106年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "106-2301",
+      "paper_order": 1,
+      "paper_code": "2301",
+      "paper_group": "綜合法學(一)",
+      "paper_title": "綜合法學(一)（憲法、行政法、國際公法、國際私法）",
+      "included_subjects": "憲法|行政法|國際公法|國際私法",
+      "duration_minutes": 90,
+      "expected_question_count": 70,
+      "points_per_question": 2.142857,
+      "max_score": 150,
+      "question_pdf": "data/raw/106/paper_1_const_admin_intl_questions.pdf",
+      "answer_pdf": "data/raw/106/paper_1_const_admin_intl_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0101&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0101&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=106120&y=2017",
+      "answer_overrides": {
+        "37": {
+          "accepted_answers": [
+            "B",
+            "C",
+            "BC"
+          ],
+          "official_answer_status": "corrected_multiple",
+          "official_notice_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0101&t=M"
+        }
+      }
+    },
+    {
+      "exam_year_roc": 106,
+      "exam_year_ad": 2017,
+      "exam_code": "106120",
+      "exam_name": "106年公務人員特種考試司法官考試（第一試）及106年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "106-3301",
+      "paper_order": 2,
+      "paper_code": "3301",
+      "paper_group": "綜合法學(二)",
+      "paper_title": "綜合法學(二)（民法、民事訴訟法）",
+      "included_subjects": "民法|民事訴訟法",
+      "duration_minutes": 100,
+      "expected_question_count": 74,
+      "points_per_question": 2.162162,
+      "max_score": 160,
+      "question_pdf": "data/raw/106/paper_2_civil_questions.pdf",
+      "answer_pdf": "data/raw/106/paper_2_civil_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0201&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0201&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=106120&y=2017",
+      "answer_overrides": {
+        "66": {
+          "accepted_answers": [
+            "BD",
+            "BCD"
+          ],
+          "official_answer_status": "corrected_multiple",
+          "official_notice_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0201&t=M"
+        }
+      }
+    },
+    {
+      "exam_year_roc": 106,
+      "exam_year_ad": 2017,
+      "exam_code": "106120",
+      "exam_name": "106年公務人員特種考試司法官考試（第一試）及106年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "106-4301",
+      "paper_order": 3,
+      "paper_code": "4301",
+      "paper_group": "綜合法學(二)",
+      "paper_title": "綜合法學(二)（公司法、保險法、票據法、證券交易法、強制執行法、法學英文）",
+      "included_subjects": "公司法|保險法|票據法|證券交易法|強制執行法|法學英文",
+      "duration_minutes": 80,
+      "expected_question_count": 70,
+      "points_per_question": 2.0,
+      "max_score": 140,
+      "question_pdf": "data/raw/106/paper_3_commercial_questions.pdf",
+      "answer_pdf": "data/raw/106/paper_3_commercial_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0301&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0301&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=106120&y=2017"
+    },
+    {
+      "exam_year_roc": 106,
+      "exam_year_ad": 2017,
+      "exam_code": "106120",
+      "exam_name": "106年公務人員特種考試司法官考試（第一試）及106年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "106-1301",
+      "paper_order": 4,
+      "paper_code": "1301",
+      "paper_group": "綜合法學(一)",
+      "paper_title": "綜合法學(一)（刑法、刑事訴訟法、法律倫理）",
+      "included_subjects": "刑法|刑事訴訟法|法律倫理",
+      "duration_minutes": 90,
+      "expected_question_count": 70,
+      "points_per_question": 2.142857,
+      "max_score": 150,
+      "question_pdf": "data/raw/106/paper_4_criminal_questions.pdf",
+      "answer_pdf": "data/raw/106/paper_4_criminal_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0401&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0401&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=106120&y=2017",
+      "answer_overrides": {
+        "59": {
+          "is_bonus": true,
+          "official_answer_status": "bonus",
+          "official_notice_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0401&t=M"
+        },
+        "69": {
+          "accepted_answers": [
+            "AC",
+            "ACE"
+          ],
+          "official_answer_status": "corrected_multiple",
+          "official_notice_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=106120&q=1&s=0401&t=M"
+        }
+      }
+    },
+    {
+      "exam_year_roc": 107,
+      "exam_year_ad": 2018,
+      "exam_code": "107120",
+      "exam_name": "107年公務人員特種考試司法官考試（第一試）及107年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "107-2301",
+      "paper_order": 1,
+      "paper_code": "2301",
+      "paper_group": "綜合法學(一)",
+      "paper_title": "綜合法學(一)（憲法、行政法、國際公法、國際私法）",
+      "included_subjects": "憲法|行政法|國際公法|國際私法",
+      "duration_minutes": 90,
+      "expected_question_count": 75,
+      "points_per_question": 2.0,
+      "max_score": 150,
+      "question_pdf": "data/raw/107/paper_1_const_admin_intl_questions.pdf",
+      "answer_pdf": "data/raw/107/paper_1_const_admin_intl_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=107120&q=1&s=0101&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=107120&q=1&s=0101&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=107120&y=2018",
+      "answer_overrides": {
+        "36": {
+          "accepted_answers": [
+            "C",
+            "D",
+            "CD"
+          ],
+          "official_answer_status": "corrected_multiple",
+          "official_notice_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=107120&q=1&s=0101&t=M"
+        }
+      }
+    },
+    {
+      "exam_year_roc": 107,
+      "exam_year_ad": 2018,
+      "exam_code": "107120",
+      "exam_name": "107年公務人員特種考試司法官考試（第一試）及107年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "107-3301",
+      "paper_order": 2,
+      "paper_code": "3301",
+      "paper_group": "綜合法學(二)",
+      "paper_title": "綜合法學(二)（民法、民事訴訟法）",
+      "included_subjects": "民法|民事訴訟法",
+      "duration_minutes": 100,
+      "expected_question_count": 80,
+      "points_per_question": 2.0,
+      "max_score": 160,
+      "question_pdf": "data/raw/107/paper_2_civil_questions.pdf",
+      "answer_pdf": "data/raw/107/paper_2_civil_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=107120&q=1&s=0201&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=107120&q=1&s=0201&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=107120&y=2018"
+    },
+    {
+      "exam_year_roc": 107,
+      "exam_year_ad": 2018,
+      "exam_code": "107120",
+      "exam_name": "107年公務人員特種考試司法官考試（第一試）及107年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "107-4301",
+      "paper_order": 3,
+      "paper_code": "4301",
+      "paper_group": "綜合法學(二)",
+      "paper_title": "綜合法學(二)（公司法、保險法、票據法、證券交易法、強制執行法、法學英文）",
+      "included_subjects": "公司法|保險法|票據法|證券交易法|強制執行法|法學英文",
+      "duration_minutes": 80,
+      "expected_question_count": 70,
+      "points_per_question": 2.0,
+      "max_score": 140,
+      "question_pdf": "data/raw/107/paper_3_commercial_questions.pdf",
+      "answer_pdf": "data/raw/107/paper_3_commercial_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=107120&q=1&s=0301&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=107120&q=1&s=0301&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=107120&y=2018",
+      "answer_overrides": {
+        "19": {
+          "accepted_answers": [
+            "B",
+            "C"
+          ],
+          "official_answer_status": "corrected_multiple",
+          "official_notice_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=107120&q=1&s=0301&t=M"
+        }
+      }
+    },
+    {
+      "exam_year_roc": 107,
+      "exam_year_ad": 2018,
+      "exam_code": "107120",
+      "exam_name": "107年公務人員特種考試司法官考試（第一試）及107年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "107-1301",
+      "paper_order": 4,
+      "paper_code": "1301",
+      "paper_group": "綜合法學(一)",
+      "paper_title": "綜合法學(一)（刑法、刑事訴訟法、法律倫理）",
+      "included_subjects": "刑法|刑事訴訟法|法律倫理",
+      "duration_minutes": 90,
+      "expected_question_count": 75,
+      "points_per_question": 2.0,
+      "max_score": 150,
+      "question_pdf": "data/raw/107/paper_4_criminal_questions.pdf",
+      "answer_pdf": "data/raw/107/paper_4_criminal_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=107120&q=1&s=0401&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=107120&q=1&s=0401&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=107120&y=2018",
+      "answer_overrides": {
+        "56": {
+          "accepted_answers": [
+            "A",
+            "C"
+          ],
+          "official_answer_status": "corrected_multiple",
+          "official_notice_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=107120&q=1&s=0401&t=M"
+        }
+      }
+    },
+    {
+      "exam_year_roc": 108,
+      "exam_year_ad": 2019,
+      "exam_code": "108120",
+      "exam_name": "108年公務人員特種考試司法官考試（第一試）及108年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "108-2301",
+      "paper_order": 1,
+      "paper_code": "2301",
+      "paper_group": "綜合法學(一)",
+      "paper_title": "綜合法學(一)（憲法、行政法、國際公法、國際私法）",
+      "included_subjects": "憲法|行政法|國際公法|國際私法",
+      "duration_minutes": 90,
+      "expected_question_count": 75,
+      "points_per_question": 2.0,
+      "max_score": 150,
+      "question_pdf": "data/raw/108/paper_1_const_admin_intl_questions.pdf",
+      "answer_pdf": "data/raw/108/paper_1_const_admin_intl_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=108120&q=1&s=0101&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=108120&q=1&s=0101&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108120&y=2019",
+      "answer_overrides": {
+        "64": {
+          "accepted_answers": [
+            "B"
+          ],
+          "official_answer_status": "corrected_multiple",
+          "official_notice_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=108120&q=1&s=0101&t=M"
+        }
+      }
+    },
+    {
+      "exam_year_roc": 108,
+      "exam_year_ad": 2019,
+      "exam_code": "108120",
+      "exam_name": "108年公務人員特種考試司法官考試（第一試）及108年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "108-3301",
+      "paper_order": 2,
+      "paper_code": "3301",
+      "paper_group": "綜合法學(二)",
+      "paper_title": "綜合法學(二)（民法、民事訴訟法）",
+      "included_subjects": "民法|民事訴訟法",
+      "duration_minutes": 100,
+      "expected_question_count": 80,
+      "points_per_question": 2.0,
+      "max_score": 160,
+      "question_pdf": "data/raw/108/paper_2_civil_questions.pdf",
+      "answer_pdf": "data/raw/108/paper_2_civil_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=108120&q=1&s=0201&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=108120&q=1&s=0201&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108120&y=2019"
+    },
+    {
+      "exam_year_roc": 108,
+      "exam_year_ad": 2019,
+      "exam_code": "108120",
+      "exam_name": "108年公務人員特種考試司法官考試（第一試）及108年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "108-4301",
+      "paper_order": 3,
+      "paper_code": "4301",
+      "paper_group": "綜合法學(二)",
+      "paper_title": "綜合法學(二)（公司法、保險法、票據法、證券交易法、強制執行法、法學英文）",
+      "included_subjects": "公司法|保險法|票據法|證券交易法|強制執行法|法學英文",
+      "duration_minutes": 80,
+      "expected_question_count": 70,
+      "points_per_question": 2.0,
+      "max_score": 140,
+      "question_pdf": "data/raw/108/paper_3_commercial_questions.pdf",
+      "answer_pdf": "data/raw/108/paper_3_commercial_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=108120&q=1&s=0301&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=108120&q=1&s=0301&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108120&y=2019"
+    },
+    {
+      "exam_year_roc": 108,
+      "exam_year_ad": 2019,
+      "exam_code": "108120",
+      "exam_name": "108年公務人員特種考試司法官考試（第一試）及108年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "108-1301",
+      "paper_order": 4,
+      "paper_code": "1301",
+      "paper_group": "綜合法學(一)",
+      "paper_title": "綜合法學(一)（刑法、刑事訴訟法、法律倫理）",
+      "included_subjects": "刑法|刑事訴訟法|法律倫理",
+      "duration_minutes": 90,
+      "expected_question_count": 75,
+      "points_per_question": 2.0,
+      "max_score": 150,
+      "question_pdf": "data/raw/108/paper_4_criminal_questions.pdf",
+      "answer_pdf": "data/raw/108/paper_4_criminal_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=108120&q=1&s=0401&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=108120&q=1&s=0401&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=108120&y=2019"
+    },
+    {
+      "exam_year_roc": 109,
+      "exam_year_ad": 2020,
+      "exam_code": "109120",
+      "exam_name": "109年公務人員特種考試司法官考試（第一試）及109年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "109-2301",
+      "paper_order": 1,
+      "paper_code": "2301",
+      "paper_group": "綜合法學(一)",
+      "paper_title": "綜合法學(一)（憲法、行政法、國際公法、國際私法）",
+      "included_subjects": "憲法|行政法|國際公法|國際私法",
+      "duration_minutes": 90,
+      "expected_question_count": 75,
+      "points_per_question": 2.0,
+      "max_score": 150,
+      "question_pdf": "data/raw/109/paper_1_const_admin_intl_questions.pdf",
+      "answer_pdf": "data/raw/109/paper_1_const_admin_intl_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=109120&q=1&s=0101&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=109120&q=1&s=0101&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109120&y=2020"
+    },
+    {
+      "exam_year_roc": 109,
+      "exam_year_ad": 2020,
+      "exam_code": "109120",
+      "exam_name": "109年公務人員特種考試司法官考試（第一試）及109年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "109-3301",
+      "paper_order": 2,
+      "paper_code": "3301",
+      "paper_group": "綜合法學(二)",
+      "paper_title": "綜合法學(二)（民法、民事訴訟法）",
+      "included_subjects": "民法|民事訴訟法",
+      "duration_minutes": 100,
+      "expected_question_count": 80,
+      "points_per_question": 2.0,
+      "max_score": 160,
+      "question_pdf": "data/raw/109/paper_2_civil_questions.pdf",
+      "answer_pdf": "data/raw/109/paper_2_civil_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=109120&q=1&s=0201&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=109120&q=1&s=0201&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109120&y=2020"
+    },
+    {
+      "exam_year_roc": 109,
+      "exam_year_ad": 2020,
+      "exam_code": "109120",
+      "exam_name": "109年公務人員特種考試司法官考試（第一試）及109年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "109-4301",
+      "paper_order": 3,
+      "paper_code": "4301",
+      "paper_group": "綜合法學(二)",
+      "paper_title": "綜合法學(二)（公司法、保險法、票據法、證券交易法、強制執行法、法學英文）",
+      "included_subjects": "公司法|保險法|票據法|證券交易法|強制執行法|法學英文",
+      "duration_minutes": 80,
+      "expected_question_count": 70,
+      "points_per_question": 2.0,
+      "max_score": 140,
+      "question_pdf": "data/raw/109/paper_3_commercial_questions.pdf",
+      "answer_pdf": "data/raw/109/paper_3_commercial_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=109120&q=1&s=0301&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=109120&q=1&s=0301&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109120&y=2020"
+    },
+    {
+      "exam_year_roc": 109,
+      "exam_year_ad": 2020,
+      "exam_code": "109120",
+      "exam_name": "109年公務人員特種考試司法官考試（第一試）及109年專門職業及技術人員高等考試律師考試（第一試）",
+      "exam_stage": "第一試",
+      "candidate_scope": "司法官及律師",
+      "paper_id": "109-1301",
+      "paper_order": 4,
+      "paper_code": "1301",
+      "paper_group": "綜合法學(一)",
+      "paper_title": "綜合法學(一)（刑法、刑事訴訟法、法律倫理）",
+      "included_subjects": "刑法|刑事訴訟法|法律倫理",
+      "duration_minutes": 90,
+      "expected_question_count": 75,
+      "points_per_question": 2.0,
+      "max_score": 150,
+      "question_pdf": "data/raw/109/paper_4_criminal_questions.pdf",
+      "answer_pdf": "data/raw/109/paper_4_criminal_answers.pdf",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=109120&q=1&s=0401&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=109120&q=1&s=0401&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=109120&y=2020",
+      "answer_overrides": {
+        "20": {
+          "accepted_answers": [
+            "B",
+            "D",
+            "BD"
+          ],
+          "official_answer_status": "corrected_multiple",
+          "official_notice_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=109120&q=1&s=0401&t=M"
+        }
+      }
+    },
     {
       "exam_year_roc": 110,
       "exam_year_ad": 2021,
@@ -23,7 +596,18 @@
       "answer_pdf": "data/raw/110/paper_1_const_admin_intl_answers.pdf",
       "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=110120&q=1&s=0101&t=Q",
       "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=110120&q=1&s=0101&t=S",
-      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110120&y=2021"
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110120&y=2021",
+      "answer_overrides": {
+        "62": {
+          "accepted_answers": [
+            "B",
+            "C",
+            "BC"
+          ],
+          "official_answer_status": "corrected_multiple",
+          "official_notice_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=110120&q=1&s=0101&t=M"
+        }
+      }
     },
     {
       "exam_year_roc": 110,
@@ -67,8 +651,8 @@
       "max_score": 140,
       "question_pdf": "data/raw/110/paper_3_commercial_questions.pdf",
       "answer_pdf": "data/raw/110/paper_3_commercial_answers.pdf",
-      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=110120&q=1&s=0202&t=Q",
-      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=110120&q=1&s=0202&t=S",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=110120&q=1&s=0301&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=110120&q=1&s=0301&t=S",
       "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110120&y=2021"
     },
     {
@@ -90,9 +674,16 @@
       "max_score": 150,
       "question_pdf": "data/raw/110/paper_4_criminal_questions.pdf",
       "answer_pdf": "data/raw/110/paper_4_criminal_answers.pdf",
-      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=110120&q=1&s=0301&t=Q",
-      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=110120&q=1&s=0301&t=S",
-      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110120&y=2021"
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=110120&q=1&s=0401&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=110120&q=1&s=0401&t=S",
+      "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=110120&y=2021",
+      "answer_overrides": {
+        "34": {
+          "is_bonus": true,
+          "official_answer_status": "bonus",
+          "official_notice_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=110120&q=1&s=0401&t=M"
+        }
+      }
     },
     {
       "exam_year_roc": 111,
@@ -116,8 +707,6 @@
       "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=111120&q=1&s=0101&t=Q",
       "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=111120&q=1&s=0101&t=S",
       "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111120&y=2022",
-      "answer_correction_pdf": "data/raw/111/paper_1_const_admin_intl_answer_correction.pdf",
-      "source_answer_correction_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=111120&q=1&s=0101&t=M",
       "answer_overrides": {
         "50": {
           "accepted_answers": [
@@ -171,8 +760,8 @@
       "max_score": 140,
       "question_pdf": "data/raw/111/paper_3_commercial_questions.pdf",
       "answer_pdf": "data/raw/111/paper_3_commercial_answers.pdf",
-      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=111120&q=1&s=0202&t=Q",
-      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=111120&q=1&s=0202&t=S",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=111120&q=1&s=0301&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=111120&q=1&s=0301&t=S",
       "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111120&y=2022"
     },
     {
@@ -194,8 +783,8 @@
       "max_score": 150,
       "question_pdf": "data/raw/111/paper_4_criminal_questions.pdf",
       "answer_pdf": "data/raw/111/paper_4_criminal_answers.pdf",
-      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=111120&q=1&s=0301&t=Q",
-      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=111120&q=1&s=0301&t=S",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=111120&q=1&s=0401&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=111120&q=1&s=0401&t=S",
       "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=111120&y=2022"
     },
     {
@@ -263,8 +852,8 @@
       "max_score": 140,
       "question_pdf": "data/raw/112/paper_3_commercial_questions.pdf",
       "answer_pdf": "data/raw/112/paper_3_commercial_answers.pdf",
-      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=112120&q=1&s=0202&t=Q",
-      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=112120&q=1&s=0202&t=S",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=112120&q=1&s=0301&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=112120&q=1&s=0301&t=S",
       "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112120&y=2023"
     },
     {
@@ -286,8 +875,8 @@
       "max_score": 150,
       "question_pdf": "data/raw/112/paper_4_criminal_questions.pdf",
       "answer_pdf": "data/raw/112/paper_4_criminal_answers.pdf",
-      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=112120&q=1&s=0301&t=Q",
-      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=112120&q=1&s=0301&t=S",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=112120&q=1&s=0401&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=112120&q=1&s=0401&t=S",
       "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=112120&y=2023"
     },
     {
@@ -355,8 +944,8 @@
       "max_score": 140,
       "question_pdf": "data/raw/113/paper_3_commercial_questions.pdf",
       "answer_pdf": "data/raw/113/paper_3_commercial_answers.pdf",
-      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=113110&q=1&s=0202&t=Q",
-      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=113110&q=1&s=0202&t=S",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=113110&q=1&s=0301&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=113110&q=1&s=0301&t=S",
       "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=113110&y=2024"
     },
     {
@@ -378,8 +967,8 @@
       "max_score": 150,
       "question_pdf": "data/raw/113/paper_4_criminal_questions.pdf",
       "answer_pdf": "data/raw/113/paper_4_criminal_answers.pdf",
-      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=113110&q=1&s=0301&t=Q",
-      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=113110&q=1&s=0301&t=S",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=113110&q=1&s=0401&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=113110&q=1&s=0401&t=S",
       "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=113110&y=2024"
     },
     {
@@ -447,8 +1036,8 @@
       "max_score": 140,
       "question_pdf": "data/raw/114/paper_3_commercial_questions.pdf",
       "answer_pdf": "data/raw/114/paper_3_commercial_answers.pdf",
-      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=114110&q=1&s=0202&t=Q",
-      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=114110&q=1&s=0202&t=S",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=114110&q=1&s=0301&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=114110&q=1&s=0301&t=S",
       "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=114110&y=2025"
     },
     {
@@ -470,8 +1059,8 @@
       "max_score": 150,
       "question_pdf": "data/raw/114/paper_4_criminal_questions.pdf",
       "answer_pdf": "data/raw/114/paper_4_criminal_answers.pdf",
-      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=114110&q=1&s=0301&t=Q",
-      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=114110&q=1&s=0301&t=S",
+      "source_question_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=114110&q=1&s=0401&t=Q",
+      "source_answer_url": "https://wwwq.moex.gov.tw/exam/wHandExamQandA_File.ashx?c=303&code=114110&q=1&s=0401&t=S",
       "official_exam_page_url": "https://wwwq.moex.gov.tw/exam/wFrmExamQandASearch.aspx?e=114110&y=2025"
     }
   ]

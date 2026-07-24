@@ -1,60 +1,38 @@
-# V2 deployment status
+# v3.0.0 deployment status
 
-## Ready in this package
+## 已完成
 
-- Next.js V2 UI：依年度、依科目、自組卷、錯題重刷
-- Email Magic Link client flow
-- 110–114 年 20 卷、1,500 題
-- 科目／民法子科目自動標記
-- 111 年公法卷第 50 題 A／B 複數有效答案
-- 正式卷與比例計時自組卷
-- 答案、星號、私人筆記與題目活躍秒數
-- 結果頁科目錯題分布與年度四卷總分
-- 歷史紀錄年度／模式／科目／結果篩選
-- Supabase V2 schema、RLS、RPC 與 private answer keys
-- Netlify 設定檔
+- 105–114 年 40 卷、2,968 題 ETL。
+- 2,904 題單選、64 題舊制五選項複選。
+- 每年度四卷配分合計均為 600 分。
+- 15 筆官方更正／送分規則結構化，其中 3 題送分。
+- 所有題目皆命中主要科目規則。
+- 105、106、111 年民法特殊子科目切分已套用。
+- 年度卷、科目自組卷與不計時錯題重刷。
+- 單選／複選作答、自動保存、星號、筆記與每題活躍時間。
+- 結果／歷史紀錄完整回看題幹、A–E 選項、使用者答案與官方可接受答案。
+- 105–114 年司法官／律師歷史門檻資料表。
+- Supabase v3 repeat-safe migration 與分段 SQL Editor 檔。
+- Python v3 release gate：pass。
 
-## Existing V1 project upgrade
+## 尚需在使用者環境執行
 
-In Supabase SQL Editor, run in order:
+1. 依 `supabase/V3_UPGRADE.md` 執行 Supabase migration 與 seed chunks。
+2. `npm.cmd install`
+3. `npm.cmd run validate:data`
+4. `npm.cmd run typecheck`
+5. `npm.cmd run build`
+6. 本機 E2E：年度卷、科目卷、單選、複選、部分得分、星號／筆記、完整歷史回看。
+7. Push GitHub，讓 Netlify 自動重新部署。
 
-1. `supabase/v2_step_1_schema.sql`
-2. `supabase/v2_step_2_seed.sql`
-3. `supabase/v2_step_3_verify.sql`
+## Release gate
 
-Expected verification:
-
-- papers = 20
-- questions = 1500
-- answer_keys = 1500
-- `111-2301-050.accepted_answers = {A,B}`
-
-Then replace／merge the project files, run locally:
-
-```powershell
-npm.cmd install
-npm.cmd run build
-npm.cmd run dev
+```text
+40 papers
+2,968 questions
+2,904 single-choice
+64 multiple-choice
+600 points per year
+15 correction/bonus rows
+3 bonus questions
 ```
-
-Push to GitHub; Netlify will redeploy from the connected repository.
-
-## Validation completed offline
-
-- Python ETL: pass
-- 20 paper QA rows: pass
-- 1,500 unique questions: pass
-- All subject mappings: pass
-- 111 civil split 34／16: pass
-- 111 Q50 correction: pass
-- TypeScript／TSX syntax transpilation: pass
-- Generated SQL lexical checks: pass
-
-## Still requires your environment
-
-This execution environment could not finish downloading npm dependencies, and it has no access to execute SQL against your Supabase project. A real `npm run build`, remote migration and end-to-end browser test must therefore run locally／on Netlify after the SQL upgrade.
-
-## V2.1 hotfix
-- Fixed PostgreSQL RPC error: `column reference "a.paper_id" is ambiguous`.
-- The affected functions were `get_attempt_payload` and `get_attempt_result`.
-- Existing Supabase projects should run `supabase/v2_hotfix_ambiguous_paper_id.sql` once.

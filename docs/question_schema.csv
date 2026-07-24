@@ -1,4 +1,4 @@
-﻿field_name,data_type,required_in_v2,source,description,example
+﻿field_name,data_type,required_in_v3,source,description,example
 question_id,text,yes,generated,唯一題目鍵,114-2301-001
 exam_year_roc,smallint,yes,manifest,民國年度,114
 exam_year_ad,smallint,yes,manifest,西元年度,2025
@@ -14,10 +14,10 @@ paper_title,text,yes,manifest,完整試卷名稱,綜合法學(一)（憲法、�
 included_subjects,text,yes,manifest,試卷含括科目，| 分隔,憲法|行政法|國際公法|國際私法
 duration_minutes,smallint,yes,manifest/PDF,正式考試時長；attempt 需快照保存,90
 expected_question_count,smallint,yes,manifest/PDF,官方題數,75
-points_per_question,numeric,yes,manifest/PDF,每題配分,2.0
+points_per_question,numeric,yes,manifest/PDF,試卷常見題分；舊制不同題型可能不同,2.0
 max_score,numeric,yes,generated,單卷滿分,150
 question_number,smallint,yes,question PDF,卷內題號,1
-question_type,text,yes,constant,第一版固定單選,single_choice
+question_type,text,yes,PDF/manifest,單選或複選題型,multiple_choice
 question_text,text,yes,question PDF,題幹,關於…何者錯誤？
 option_a,text,yes,question PDF,選項 A,…
 option_b,text,yes,question PDF,選項 B,…
@@ -45,3 +45,6 @@ topic_secondary,text,later,manual tagging,次要考點，| 分隔,信賴保護
 law_refs,text,later,manual tagging,法規條號，| 分隔,行政程序法§93
 tags,text,later,manual tagging,搜尋標籤，| 分隔,實務見解|易錯
 notes,text,optional,manual review,疑義、舊法、修正紀錄,待確認修法
+option_e,text,conditional,question PDF,105–106 年五選項題目的 E 選項,選項 E
+question_points,numeric,yes,manifest/PDF,該題實際配分；舊制複選題為 3 分,3.0
+is_bonus,boolean,yes,official correction,官方送分題標記,false
