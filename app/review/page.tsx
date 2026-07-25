@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
+import CollapsiblePanel from "@/components/collapsible-panel";
 import type { DueReviewSummary, LearningInsights, StartAttemptResponse } from "@/lib/types";
 
 const limits = [10, 20, 30, 200];
@@ -78,16 +79,28 @@ export default function ReviewPage() {
         <div><span>下一批</span><strong className="review-next-date">{summary.next_due_at ? new Date(summary.next_due_at).toLocaleDateString("zh-TW") : "—"}</strong></div>
       </div>
 
-      {summary.due_by_subject.length > 0 && <section className="due-subject-section"><h2>今日科目分布</h2><div className="due-subject-grid">{summary.due_by_subject.map((item) => <article key={item.subject}><strong>{item.subject}</strong><span>{item.count} 題</span></article>)}</div></section>}
+      {summary.due_by_subject.length > 0 && <CollapsiblePanel
+        className="due-subject-collapsible"
+        eyebrow="今日到期"
+        title="科目分布"
+        hint={`${summary.due_by_subject.length} 個科目・共 ${summary.due_count} 題`}
+        defaultOpen
+      >
+        <div className="due-subject-grid">{summary.due_by_subject.map((item) => <article key={item.subject}><strong>{item.subject}</strong><span>{item.count} 題</span></article>)}</div>
+      </CollapsiblePanel>}
 
-      {insights && insights.recent_attempt_count > 0 && <section className="learning-insights-section">
-        <div className="section-heading"><div><div className="eyebrow">最近五回</div><h2>學習診斷</h2></div><span>依已標記錯因與作答信心彙整</span></div>
+      {insights && insights.recent_attempt_count > 0 && <CollapsiblePanel
+        className="learning-insights-collapsible"
+        eyebrow="最近五回"
+        title="學習診斷"
+        hint="依已標記錯因與作答信心彙整，點擊查看常見錯因與信心校準"
+      >
         <div className="learning-insight-grid">
           <article><strong>最常見錯因</strong>{insights.top_error_reasons.length ? insights.top_error_reasons.slice(0, 3).map((item) => <p key={item.reason}>{errorReasonLabels[item.reason] ?? item.reason}<span>{item.count} 題</span></p>) : <p>尚未標記錯因</p>}</article>
           <article><strong>高風險錯誤認知</strong><p>確定但未滿分<span>{insights.confidence.confident_wrong} 題</span></p><p>純猜且未滿分<span>{insights.confidence.guess_wrong} 題</span></p></article>
           <article><strong>尚未穩定掌握</strong><p>不確定但答對<span>{insights.confidence.unsure_correct} 題</span></p><p>已記錄信心<span>{insights.confidence.recorded} 題</span></p></article>
         </div>
-      </section>}
+      </CollapsiblePanel>}
 
       {summary.due_count > 0 ? <section className="review-start-card">
         <div><h2>開始不計時複習</h2><p>優先順序：答錯 → 猜對 → 不確定答對 → 其他到期題目。</p></div>

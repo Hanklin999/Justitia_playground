@@ -1,67 +1,49 @@
-# Justitia's playground v3.12.3
+# Justitia's playground v3.12.8
 
-> 司律陪考資料庫
+> 司律陪考資料庫 — a practice, mock-exam and spaced-review platform for Taiwan's Bar & Judicial first-stage examination (司法官／律師第一試).
 
-司法官／律師第一試刷題、正式模考、節奏診斷與間隔複習平台。題庫涵蓋民國 105–114 年考選部官方考古題，共 40 卷、2,968 題。
+Question bank: official Ministry of Examination past papers, ROC years 105–114 — **40 papers, 2,968 questions**.
 
-## v3.12.3 重點
+Chinese user guide (使用說明): [`README.zh-TW.md`](./README.zh-TW.md)
 
-- 改用 React 狀態控制的收合元件，所有內容預設不渲染，使用者按下「展開」後才顯示。
-- 收合範圍：Pacing report／答題節奏診斷、第三方外部參考、這題為什麼沒拿滿分、其他標記與筆記。
-- 每題外層只常駐顯示「模考有沒有標記」與「加入／移除檢討標記」。
-- 支援手機點擊、鍵盤操作與 aria-expanded；本版不需新增 Supabase schema。
+<!-- IMAGE: hero shot — see "Screenshots" below for the full list -->
 
-## v3.12.1 重點
+## What it does
 
-- 首頁更新產品小標、副標與版本時間。
-- 110–113 年檢討題目依年度、卷別與原始題號顯示全人法學中心第三方外部參考。
-- 僅提供新分頁連結與來源聲明；不嵌入、抓取、OCR、摘要或修改第三方內容。
-- 外部網址、驗證時間與狀態由 Supabase 管理，更新網址不需重新部署。
+| Area | Capability |
+| --- | --- |
+| Practice | Official year papers (original question order, official duration) and custom subject papers (pick years + subjects, set name, mock date and question count) |
+| Answering | Autosave, countdown with auto-submit on timeout, A–E multiple-select with official partial credit for ROC 105–106, per-question confidence, star + note |
+| Diagnosis | Effective time per question (background tabs excluded), answer revisions, pace coach, front/back-half comparison, last-ten-minutes analysis, confidence calibration |
+| Review | Full answer review with official answers, error-reason tagging, review stars/notes kept across attempts, third-party explanation links |
+| Spaced review | 1 / 3 / 7 / 14 / 30 day scheduling driven by score and confidence; daily due list |
+| History | Per-attempt records, filtering and sorting, permanent per-attempt deletion, review papers built from selected attempts |
 
-## v3.12.0 重點
+Exam and review annotations are kept separate: **模考星號／筆記** are locked to one attempt and frozen at submit; **檢討星號／筆記** persist across attempts and feed the review-paper builder.
 
-### P0：答題節奏教練
+## v3.12.8 highlights
 
-- 即時顯示有效平均秒數、每題目標與預估完成題數。
-- 正式年度卷預設關閉提示，自組模考預設開啟，可隨時切換。
-- 背景分頁不計入單題時間，但正式倒數不暫停。
-- 結果頁提供各科速度、最耗時題目、前後半卷、最後十分鐘與改答案效果。
-- 每次答案修改、最終作答時間與當時剩餘秒數皆保留。
+Mobile-first pass over every surface, using collapse instead of removal — no feature is hidden or deleted, only folded away by default.
 
-### P1：錯誤診斷與間隔複習
+- **Answering page**: pinned top chrome cut from 208px to 59px at 390×844 (question + option area 574px → 723px). Question index collapses to a pill in the top-left; prev/next sticks above the footer; star toggle now lives in the prev/next row; confidence and notes fold into 作答輔助.
+- **Review page**: full-mark questions collapse to a one-line summary, filter tabs scroll on a single row, answer summary becomes a two-column grid, time/source log folds away, floating 下一個未滿分 jumps to the next imperfect question.
+- **Practice page**: each exam year is a collapsible section (newest open by default); the builder summary sticks to the bottom on phones so 建立自組模考 is always reachable.
+- **Today's review**: 科目分布 and 學習診斷 fold away so the start button is above the fold.
+- **History**: filters/sorting and the review-paper builder are collapsible with an active-condition chip row.
+- Footer actions are now 44px tap targets; answer saves are bounded by a 10s timeout so the submit buttons can never stay disabled.
 
-- 每題可選「確定／不確定／純猜」。
-- 未滿分題可標主要錯因與補充標籤。
-- 最近五回顯示常見錯因與信心校準風險。
-- 依得分與信心安排 1／3／7／14／30 天後再次複習。
-- 「今日待複習」可選 10／20／30／全部，建立不計時組卷。
+Full list: [`RELEASE_NOTES_v3.12.8.md`](./RELEASE_NOTES_v3.12.8.md)
 
-### 歷史紀錄
+## Tech stack
 
-- 以 attempt 為單位永久刪除作答紀錄。
-- 刪除前顯示二次確認視窗。
-- 刪除後重算受影響題目的間隔複習排程。
-- 模考星號／模考筆記隨 attempt 刪除；跨回合檢討星號／筆記保留。
+- Next.js 16, React 19, TypeScript
+- Supabase — PostgreSQL, Auth (email magic link), RLS, database functions
+- Netlify deployment
+- Python, pandas, PyMuPDF / pdfplumber for the ETL pipeline
 
-## 既有能力
+Official answers live in a private schema and are never returned by the public API before submission.
 
-- 105–114 年正式年度卷與科目自組卷。
-- 105–106 年 A–E 複選與官方部分得分。
-- Email Magic Link、Autosave、倒數與逾時交卷。
-- 模考與檢討星號／筆記分流。
-- 指定作答回合建立錯題／星號複習組卷。
-- 官方答案位於 private schema，交卷前不由公開 API 回傳。
-
-## Supabase 升級
-
-既有 v3.12.0 資料庫依序執行：
-
-1. `supabase/sql_editor_v3/28_v3_12_1_external_explanations.sql`
-2. `supabase/sql_editor_v3/29_verify_v3_12_1.sql`
-
-若從 v3.1.0 升級，請先完成 `26`、`27`，再執行 `28`、`29`。不需要重跑題庫 seed。詳細說明：`supabase/V3_12_1_UPGRADE.md`。
-
-## 本機驗證
+## Local setup
 
 ```powershell
 npm.cmd install
@@ -72,18 +54,63 @@ npm.cmd run build
 npm.cmd run dev
 ```
 
-## 環境變數
+### Environment variables
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLISHABLE_KEY
 ```
 
-Secret／service-role key 不可放進前端或 GitHub。
+Never put a secret or service-role key in the frontend or in Git.
 
-## 技術架構
+## Supabase migrations
 
-- Next.js 16、React 19、TypeScript
-- Supabase PostgreSQL、Auth、RLS、Database Functions
-- Netlify deployment
-- Python、pandas、PyMuPDF／pdfplumber ETL
+v3.12.8 requires **no** schema change. Coming from an older database, run these in the Supabase SQL editor in order:
+
+| From | Run |
+| --- | --- |
+| v3.1.0 | `26_v3_12_pacing_learning.sql`, `27_verify_v3_12.sql`, `28_v3_12_1_external_explanations.sql`, `29_verify_v3_12_1.sql` |
+| v3.12.0 | `28_v3_12_1_external_explanations.sql`, `29_verify_v3_12_1.sql` |
+| v3.12.1+ | nothing |
+
+All files are under `supabase/sql_editor_v3/`. Details: `supabase/V3_12_1_UPGRADE.md`. The question-bank seed never needs re-running.
+
+## Repository layout
+
+```
+app/                 Next.js App Router pages
+  exam/[attemptId]   answering screen
+  results/[attemptId] review screen
+  practice/          paper & custom-paper picker
+  history/           attempt history + review-paper builder
+  review/            spaced-review dashboard
+components/          shared UI (collapsible-panel)
+lib/                 Supabase browser client, shared types
+supabase/sql_editor_v3/  ordered SQL migrations
+etl/                 PDF → structured question pipeline
+data/                source manifests and notices
+scripts/             data validation, TS syntax check
+```
+
+## Screenshots
+
+Put images in `docs/images/` and reference them from both READMEs. Recommended set:
+
+| File | Shot | Why |
+| --- | --- | --- |
+| `home-desktop.png` | Landing page, desktop | Hero image at the top of the README |
+| `practice-year-collapsed.png` | 依年度 with year sections collapsed | Shows the collapse-first design |
+| `practice-subject-builder.png` | 依科目 three-step builder with the summary bar | Explains custom papers |
+| `exam-mobile.png` | Answering screen on a phone, index collapsed | The headline v3.12.8 change |
+| `exam-mobile-index-open.png` | Same screen with the index expanded | Shows nothing was removed |
+| `exam-desktop.png` | Answering screen on desktop with the left index | Desktop layout is unchanged |
+| `results-overview.png` | Score hero + pace report expanded | Diagnosis capability |
+| `results-question-wrong.png` | One imperfect question with error tagging open | Core review loop |
+| `review-dashboard.png` | 今日待複習 with due counts | Spaced review |
+| `history-filters.png` | History with the filter panel expanded and chips visible | Filtering/sorting |
+
+Use 2× device pixel ratio, crop out browser chrome, and use a real attempt with plausible data. For mobile shots, 390×844 matches the measurements quoted above. Avoid showing a real email address in the header — sign in with a test account or blur it.
+
+## Licence & notice
+
+Application source code and the Ministry of Examination source PDFs are separate works. See [`NOTICE.md`](./NOTICE.md), `data/raw/SOURCE_NOTICE.md` and `etl/manifest.json`. Third-party explanation links open in a new tab; their content is neither copied nor modified.

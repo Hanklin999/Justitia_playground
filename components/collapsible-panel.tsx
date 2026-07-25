@@ -1,0 +1,40 @@
+"use client";
+
+import { useState } from "react";
+import type { ReactNode } from "react";
+
+export type CollapsiblePanelProps = {
+  title: ReactNode;
+  eyebrow?: string;
+  hint?: ReactNode;
+  className?: string;
+  defaultOpen?: boolean;
+  children: ReactNode;
+};
+
+export default function CollapsiblePanel({ title, eyebrow, hint, className, defaultOpen = false, children }: CollapsiblePanelProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const panelClassName = ["result-collapsible", className].filter(Boolean).join(" ");
+
+  return (
+    <section className={panelClassName}>
+      <button
+        type="button"
+        className="result-collapsible-summary"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((current) => !current)}
+      >
+        <span className="result-collapsible-title-stack">
+          {eyebrow && <span className="result-collapsible-eyebrow">{eyebrow}</span>}
+          <strong className="result-collapsible-title">{title}</strong>
+          {hint && <small>{hint}</small>}
+        </span>
+        <span className="result-collapsible-action">
+          {isOpen ? "收合" : "展開"}
+          <span className={`result-collapsible-chevron ${isOpen ? "open" : ""}`} aria-hidden="true">⌄</span>
+        </span>
+      </button>
+      {isOpen && <div className="result-collapsible-body">{children}</div>}
+    </section>
+  );
+}

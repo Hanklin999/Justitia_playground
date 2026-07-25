@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
+import CollapsiblePanel from "@/components/collapsible-panel";
 import type { AnswerChoice, AttemptResult, ConfidenceLevel, ErrorReason, ResultQuestion, YearSummary } from "@/lib/types";
 
 type ResultFilter = "all" | "wrong" | "unanswered" | "correct" | "exam_starred" | "review_starred";
@@ -54,41 +54,6 @@ function rate(earned: number, possible: number) {
   return possible > 0 ? Math.round(earned / possible * 100) : 0;
 }
 
-type CollapsiblePanelProps = {
-  title: ReactNode;
-  eyebrow?: string;
-  hint?: ReactNode;
-  className?: string;
-  children: ReactNode;
-};
-
-function CollapsiblePanel({ title, eyebrow, hint, className, children }: CollapsiblePanelProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const panelClassName = ["result-collapsible", className].filter(Boolean).join(" ");
-
-  return (
-    <section className={panelClassName}>
-      <button
-        type="button"
-        className="result-collapsible-summary"
-        aria-expanded={isOpen}
-        onClick={() => setIsOpen((current) => !current)}
-      >
-        <span className="result-collapsible-title-stack">
-          {eyebrow && <span className="result-collapsible-eyebrow">{eyebrow}</span>}
-          <strong className="result-collapsible-title">{title}</strong>
-          {hint && <small>{hint}</small>}
-        </span>
-        <span className="result-collapsible-action">
-          {isOpen ? "收合" : "展開"}
-          <span className={`result-collapsible-chevron ${isOpen ? "open" : ""}`} aria-hidden="true">⌄</span>
-        </span>
-      </button>
-      {isOpen && <div className="result-collapsible-body">{children}</div>}
-    </section>
-  );
-}
-
 export default function ResultPage() {
   const params = useParams<{ attemptId: string }>();
   const router = useRouter();
@@ -97,6 +62,7 @@ export default function ResultPage() {
   const [yearSummaries, setYearSummaries] = useState<YearSummary[]>([]);
   const [externalLinks, setExternalLinks] = useState<Record<string, ExternalExplanationLink>>({});
   const [errorMessage, setErrorMessage] = useState("");
+  const [openCorrect, setOpenCorrect] = useState<Record<string, boolean>>({});
   const [filter, setFilter] = useState<ResultFilter>("all");
   const [reviewStars, setReviewStars] = useState<Record<string, boolean>>({});
   const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
@@ -235,6 +201,14 @@ export default function ResultPage() {
     return { targetSeconds, sortedByTime, halves, lastTen, rapidLastTen, lastTenGuesses: lastTen.filter((q) => q.confidence_level === "guess").length, revisions, confidence, changedCount: changed.length };
   }, [result]);
 
+  function jumpToNextIncomplete() {
+    if (typeof document === "undefined") return;
+    const cards = Array.from(document.querySelectorAll<HTMLElement>(".result-question.incorrect"));
+    if (cards.length === 0) return;
+    const next = cards.find((card) => card.getBoundingClientRect().top > 90) ?? cards[0];
+    next.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   if (errorMessage && !result) {
     return <section className="container narrow page-section centered-panel"><h1>成績尚未產生</h1><p className="error-message">{errorMessage}</p><Link className="button primary" href={`/exam/${attemptId}`}>返回考試</Link></section>;
   }
@@ -259,14 +233,21 @@ export default function ResultPage() {
       </div>
     </div>
 
-    <div className="result-meta time-log">
-      <span>模考日期：{new Date(`${result.attempt.exam_date}T00:00:00`).toLocaleDateString("zh-TW")}</span>
-      <span>開始：{new Date(result.attempt.started_at).toLocaleString("zh-TW")}</span>
-      <span>交卷：{new Date(result.attempt.submitted_at).toLocaleString("zh-TW")}</span>
-      <span>{result.attempt.submit_reason === "timeout" ? "時間到自動交卷" : "手動交卷"}</span>
-      <span>{result.attempt.is_timed ? `設定時長 ${result.attempt.duration_minutes} 分鐘` : "不計時練習"}</span>
-      {result.paper && <a href={result.paper.source_answer_url} target="_blank" rel="noreferrer">官方答案來源</a>}
-    </div>
+    <CollapsiblePanel
+      className="time-log-collapsible"
+      eyebrow="本回資訊"
+      title="時間與資料來源"
+      hint="模考日期、開始與交卷時間、時長設定與官方答案連結"
+    >
+      <div className="result-meta time-log">
+        <span>模考日期：{new Date(`${result.attempt.exam_date}T00:00:00`).toLocaleDateString("zh-TW")}</span>
+        <span>開始：{new Date(result.attempt.started_at).toLocaleString("zh-TW")}</span>
+        <span>交卷：{new Date(result.attempt.submitted_at).toLocaleString("zh-TW")}</span>
+        <span>{result.attempt.submit_reason === "timeout" ? "時間到自動交卷" : "手動交卷"}</span>
+        <span>{result.attempt.is_timed ? `設定時長 ${result.attempt.duration_minutes} 分鐘` : "不計時練習"}</span>
+        {result.paper && <a href={result.paper.source_answer_url} target="_blank" rel="noreferrer">官方答案來源</a>}
+      </div>
+    </CollapsiblePanel>
 
     <CollapsiblePanel
       className="pacing-collapsible"
@@ -320,8 +301,19 @@ export default function ResultPage() {
       const primaryReasonLabel = primaryErrorOptions.find((option) => option.value === primaryReason)?.label;
       const secondary = secondaryReasons[question.question_id] ?? [];
       const externalLink = externalLinks[question.question_id];
+      const bodyVisible = !question.is_correct || (openCorrect[question.question_id] ?? filter === "correct");
       return <article id={`question-${question.question_id}`} className={`result-question ${question.is_correct ? "correct" : "incorrect"}`} key={question.question_id}>
         <div className="result-question-header"><strong>第 {question.display_order} 題 · {question.subject_primary}{question.subsubject_primary !== "未分類" ? `／${question.subsubject_primary}` : ""}</strong><span>{question.is_bonus ? "送分" : question.is_correct ? "滿分" : question.is_unanswered ? "未作答" : partial ? "部分得分" : "答錯"}</span></div>
+        {question.is_correct && <button
+          type="button"
+          className="result-question-toggle"
+          aria-expanded={bodyVisible}
+          onClick={() => setOpenCorrect((current) => ({ ...current, [question.question_id]: !bodyVisible }))}
+        >
+          <span>{bodyVisible ? "收合這題" : "展開題目與選項"}</span>
+          <span className="result-question-toggle-meta">{question.earned_points} / {question.question_points} 分・{formatDuration(question.active_seconds)}<span className={`result-collapsible-chevron ${bodyVisible ? "open" : ""}`} aria-hidden="true">⌄</span></span>
+        </button>}
+        {bodyVisible && <>
         <p className="result-question-text">{question.question_text}</p>
         <div className="result-option-list">{available.map((choice) => {
           const userSelected = selected.includes(choice);
@@ -392,9 +384,20 @@ export default function ResultPage() {
               <small>{savingQuestionId === question.question_id ? "保存中…" : "檢討標記會跨回合保留，可用來建立複習組卷。"}</small>
             </section>
           </div>
-        </CollapsiblePanel>      </article>;
+        </CollapsiblePanel>
+        </>}
+      </article>;
     })}</div>
 
     <div className="actions"><Link className="button primary" href="/practice">再選一份測驗</Link><Link className="button secondary" href="/history">查看歷史紀錄</Link></div>
+
+    {result.questions.some((question) => !question.is_correct) && <button
+      type="button"
+      className="jump-next-incomplete"
+      onClick={jumpToNextIncomplete}
+    >
+      <span aria-hidden="true">↓</span>
+      <span>下一個未滿分</span>
+    </button>}
   </section>;
 }

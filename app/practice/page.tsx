@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
+import CollapsiblePanel from "@/components/collapsible-panel";
 import type { ExamPaper, StartAttemptResponse, SubjectConfig } from "@/lib/types";
 
 type PracticeMode = "year" | "subject";
@@ -194,7 +195,14 @@ export default function PracticePage() {
     {errorMessage && <div className="error-card" role="alert"><strong>目前無法完成操作</strong><span>{errorMessage}</span></div>}
     {loading && <p className="muted">正在讀取題庫…</p>}
 
-    {!loading && mode === "year" && years.map((year) => <section key={year} className="year-section"><h2>{year} 年</h2><div className="paper-grid">{papers.filter((paper) => paper.exam_year_roc === year).map((paper) => <article className="paper-card" key={paper.paper_id}><div className="paper-meta">第 {paper.paper_order} 卷 · 代號 {paper.paper_code}</div><h3>{paper.paper_title}</h3><div className="paper-stats"><span>{paper.question_count} 題</span><span>{paper.duration_minutes} 分鐘</span><span>滿分 {paper.max_score}</span></div><p>{paper.included_subjects.join("、")}</p><div className="paper-actions"><a href={paper.source_question_url} target="_blank" rel="noreferrer" className="source-link">官方試題</a><button className="button primary" type="button" disabled={startingKey !== null} onClick={() => void startOfficialExam(paper.paper_id)}>{startingKey === paper.paper_id ? "建立考試中…" : "開始這一卷"}</button></div></article>)}</div></section>)}
+    {!loading && mode === "year" && years.map((year, yearIndex) => <CollapsiblePanel
+      key={year}
+      className="year-collapsible"
+      eyebrow="年度正式卷"
+      title={`${year} 年`}
+      hint={`${papers.filter((paper) => paper.exam_year_roc === year).length} 卷・${yearIndex === 0 ? "預設展開" : "點擊展開試卷清單"}`}
+      defaultOpen={yearIndex === 0}
+    ><div className="paper-grid">{papers.filter((paper) => paper.exam_year_roc === year).map((paper) => <article className="paper-card" key={paper.paper_id}><div className="paper-meta">第 {paper.paper_order} 卷 · 代號 {paper.paper_code}</div><h3>{paper.paper_title}</h3><div className="paper-stats"><span>{paper.question_count} 題</span><span>{paper.duration_minutes} 分鐘</span><span>滿分 {paper.max_score}</span></div><p>{paper.included_subjects.join("、")}</p><div className="paper-actions"><a href={paper.source_question_url} target="_blank" rel="noreferrer" className="source-link">官方試題</a><button className="button primary" type="button" disabled={startingKey !== null} onClick={() => void startOfficialExam(paper.paper_id)}>{startingKey === paper.paper_id ? "建立考試中…" : "開始這一卷"}</button></div></article>)}</div></CollapsiblePanel>)}
 
     {!loading && mode === "subject" && <div className="subject-builder">
       <section className="builder-card"><div className="builder-step"><span>1</span><div><h2>複選年度</h2><p>題目會從所選年度混合抽樣。</p></div></div><div className="choice-chip-grid">{years.map((year) => <button key={year} type="button" className={selectedYears.includes(year) ? "choice-chip selected" : "choice-chip"} onClick={() => toggleYear(year)}>{year} 年</button>)}</div></section>
