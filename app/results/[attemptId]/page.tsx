@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
 import type { AnswerChoice, AttemptResult, ConfidenceLevel, ErrorReason, ResultQuestion, YearSummary } from "@/lib/types";
@@ -51,6 +52,41 @@ function optionText(question: ResultQuestion, choice: AnswerChoice) {
 
 function rate(earned: number, possible: number) {
   return possible > 0 ? Math.round(earned / possible * 100) : 0;
+}
+
+type CollapsiblePanelProps = {
+  title: ReactNode;
+  eyebrow?: string;
+  hint?: ReactNode;
+  className?: string;
+  children: ReactNode;
+};
+
+function CollapsiblePanel({ title, eyebrow, hint, className, children }: CollapsiblePanelProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const panelClassName = ["result-collapsible", className].filter(Boolean).join(" ");
+
+  return (
+    <section className={panelClassName}>
+      <button
+        type="button"
+        className="result-collapsible-summary"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((current) => !current)}
+      >
+        <span className="result-collapsible-title-stack">
+          {eyebrow && <span className="result-collapsible-eyebrow">{eyebrow}</span>}
+          <strong className="result-collapsible-title">{title}</strong>
+          {hint && <small>{hint}</small>}
+        </span>
+        <span className="result-collapsible-action">
+          {isOpen ? "收合" : "展開"}
+          <span className={`result-collapsible-chevron ${isOpen ? "open" : ""}`} aria-hidden="true">⌄</span>
+        </span>
+      </button>
+      {isOpen && <div className="result-collapsible-body">{children}</div>}
+    </section>
+  );
 }
 
 export default function ResultPage() {
@@ -232,20 +268,26 @@ export default function ResultPage() {
       {result.paper && <a href={result.paper.source_answer_url} target="_blank" rel="noreferrer">官方答案來源</a>}
     </div>
 
-    <section className="pacing-report">
-      <div className="section-heading"><div><div className="eyebrow">Pacing report</div><h2>答題節奏診斷</h2></div><span>切換到背景分頁的時間不計入單題活躍時間</span></div>
-      <div className="pacing-grid">
-        {breakdown.map((item) => <article key={`${item.subject}-${item.subsubject}`}><strong>{item.subject}{item.subsubject ? `／${item.subsubject}` : ""}</strong><span>平均 {item.total ? Math.round(item.active / item.total) : 0} 秒／題</span>{paceAnalysis.targetSeconds > 0 && <small>目標約 {Math.round(paceAnalysis.targetSeconds)} 秒／題</small>}<em>得分率 {rate(item.earned, item.points)}%</em></article>)}
-      </div>
-      <div className="pacing-insight-grid">
-        <article><strong>前後半卷</strong><p>前半：{rate(paceAnalysis.halves[0].earned, paceAnalysis.halves[0].possible)}%，平均 {paceAnalysis.halves[0].questions ? Math.round(paceAnalysis.halves[0].active / paceAnalysis.halves[0].questions) : 0} 秒／題</p><p>後半：{rate(paceAnalysis.halves[1].earned, paceAnalysis.halves[1].possible)}%，平均 {paceAnalysis.halves[1].questions ? Math.round(paceAnalysis.halves[1].active / paceAnalysis.halves[1].questions) : 0} 秒／題</p></article>
-        <article><strong>最後 10 分鐘</strong>{result.attempt.is_timed ? <><p>完成 {paceAnalysis.lastTen.length} 題，其中 {paceAnalysis.rapidLastTen.length} 題低於目標時間 30%。</p><p>該區得分率 {rate(paceAnalysis.lastTen.reduce((s, q) => s + q.earned_points, 0), paceAnalysis.lastTen.reduce((s, q) => s + q.question_points, 0))}%；其中 {paceAnalysis.lastTenGuesses} 題標記純猜。</p></> : <p>本回不計時，無最後十分鐘分析。</p>}</article>
-        <article><strong>修改答案</strong><p>實際改答案 {paceAnalysis.changedCount} 題</p><p>錯→較好 {paceAnalysis.revisions.improved}｜較好→較差 {paceAnalysis.revisions.harmed}｜不變 {paceAnalysis.revisions.unchanged}</p></article>
-        <article><strong>信心校準</strong><p>確定但未滿分 {paceAnalysis.confidence.confidentWrong} 題</p><p>不確定但答對 {paceAnalysis.confidence.unsureCorrect}｜純猜未滿分 {paceAnalysis.confidence.guessWrong}</p><small>本回記錄 {paceAnalysis.confidence.recorded}／{result.questions.length} 題信心</small></article>
-      </div>
-      <div className="slow-question-list"><strong>最耗時題目</strong>{paceAnalysis.sortedByTime.map((question) => <a key={question.question_id} href={`#question-${question.question_id}`}>第 {question.display_order} 題 · {question.active_seconds} 秒 · {question.is_correct ? "滿分" : "未滿分"}</a>)}</div>
-    </section>
-
+    <CollapsiblePanel
+      className="pacing-collapsible"
+      eyebrow="Pacing report"
+      title="答題節奏診斷"
+      hint="預設收合，點擊後查看完整節奏分析"
+    >
+      <section className="pacing-report">
+        <p className="collapsible-context">切換到背景分頁的時間不計入單題活躍時間</p>
+        <div className="pacing-grid">
+          {breakdown.map((item) => <article key={`${item.subject}-${item.subsubject}`}><strong>{item.subject}{item.subsubject ? `／${item.subsubject}` : ""}</strong><span>平均 {item.total ? Math.round(item.active / item.total) : 0} 秒／題</span>{paceAnalysis.targetSeconds > 0 && <small>目標約 {Math.round(paceAnalysis.targetSeconds)} 秒／題</small>}<em>得分率 {rate(item.earned, item.points)}%</em></article>)}
+        </div>
+        <div className="pacing-insight-grid">
+          <article><strong>前後半卷</strong><p>前半：{rate(paceAnalysis.halves[0].earned, paceAnalysis.halves[0].possible)}%，平均 {paceAnalysis.halves[0].questions ? Math.round(paceAnalysis.halves[0].active / paceAnalysis.halves[0].questions) : 0} 秒／題</p><p>後半：{rate(paceAnalysis.halves[1].earned, paceAnalysis.halves[1].possible)}%，平均 {paceAnalysis.halves[1].questions ? Math.round(paceAnalysis.halves[1].active / paceAnalysis.halves[1].questions) : 0} 秒／題</p></article>
+          <article><strong>最後 10 分鐘</strong>{result.attempt.is_timed ? <><p>完成 {paceAnalysis.lastTen.length} 題，其中 {paceAnalysis.rapidLastTen.length} 題低於目標時間 30%。</p><p>該區得分率 {rate(paceAnalysis.lastTen.reduce((s, q) => s + q.earned_points, 0), paceAnalysis.lastTen.reduce((s, q) => s + q.question_points, 0))}%；其中 {paceAnalysis.lastTenGuesses} 題標記純猜。</p></> : <p>本回不計時，無最後十分鐘分析。</p>}</article>
+          <article><strong>修改答案</strong><p>實際改答案 {paceAnalysis.changedCount} 題</p><p>錯→較好 {paceAnalysis.revisions.improved}｜較好→較差 {paceAnalysis.revisions.harmed}｜不變 {paceAnalysis.revisions.unchanged}</p></article>
+          <article><strong>信心校準</strong><p>確定但未滿分 {paceAnalysis.confidence.confidentWrong} 題</p><p>不確定但答對 {paceAnalysis.confidence.unsureCorrect}｜純猜未滿分 {paceAnalysis.confidence.guessWrong}</p><small>本回記錄 {paceAnalysis.confidence.recorded}／{result.questions.length} 題信心</small></article>
+        </div>
+        <div className="slow-question-list"><strong>最耗時題目</strong>{paceAnalysis.sortedByTime.map((question) => <a key={question.question_id} href={`#question-${question.question_id}`}>第 {question.display_order} 題 · {question.active_seconds} 秒 · {question.is_correct ? "滿分" : "未滿分"}</a>)}</div>
+      </section>
+    </CollapsiblePanel>
     <section className="breakdown-section">
       <div className="section-heading"><div><div className="eyebrow">錯題分布</div><h2>各科與子科目</h2></div></div>
       <div className="breakdown-grid">{breakdown.map((item) => <article className="breakdown-card" key={`${item.subject}-${item.subsubject}`}><div><strong>{item.subject}</strong>{item.subsubject && <span>{item.subsubject}</span>}</div><div className="breakdown-numbers"><span>未滿分 {item.wrong}</span><span>未答 {item.unanswered}</span><span>共 {item.total}</span></div></article>)}</div>
@@ -275,6 +317,7 @@ export default function ResultPage() {
       const partial = !question.is_correct && !question.is_unanswered && question.earned_points > 0;
       const reviewStarred = Boolean(reviewStars[question.question_id]);
       const primaryReason = primaryReasons[question.question_id] ?? null;
+      const primaryReasonLabel = primaryErrorOptions.find((option) => option.value === primaryReason)?.label;
       const secondary = secondaryReasons[question.question_id] ?? [];
       const externalLink = externalLinks[question.question_id];
       return <article id={`question-${question.question_id}`} className={`result-question ${question.is_correct ? "correct" : "incorrect"}`} key={question.question_id}>
@@ -287,46 +330,69 @@ export default function ResultPage() {
         })}</div>
         <div className="answer-comparison"><span>你的答案：<strong>{selected || "未作答"}</strong></span><span>可接受答案：<strong>{question.is_bonus ? "本題送分" : accepted.join("／")}</strong></span><span>得分：<strong>{question.earned_points} / {question.question_points}</strong></span><span>本題約 {formatDuration(question.active_seconds)}</span>{question.confidence_level && <span>信心：<strong>{confidenceLabels[question.confidence_level]}</strong></span>}{question.answer_revision_count > 1 && <span>修改答案：<strong>{question.answer_revision_count - 1} 次</strong></span>}</div>
 
-        {externalLink && <section className="external-reference-card" aria-label={`第 ${question.display_order} 題第三方外部參考`}>
-          <div className="external-reference-kicker">第三方外部參考</div>
-          <strong>來源：{externalLink.provider_name}</strong>
-          <p>外部詳解涵蓋該卷第 {externalLink.question_start}～{externalLink.question_end} 題，開啟後請找到第 {question.question_number} 題。</p>
-          <a
-            className="external-reference-link"
-            href={externalLink.external_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            referrerPolicy="no-referrer"
-          >
-            {externalLink.provider_name}｜{externalLink.coverage_year} 年{paperTypeLabels[externalLink.paper_type]}第 {externalLink.question_start}～{externalLink.question_end} 題詳解，前往 Facebook 查看
-          </a>
-          {externalLink.link_status === "login_required" && <span className="external-reference-status">Facebook 可能要求登入。</span>}
-          <small>此連結為外部第三方內容，解析著作權及內容責任歸原發布者所有；本平台未重製或修改其內容。</small>
-        </section>}
-        {!question.is_correct && <section className="error-diagnosis-card">
-          <div><strong>這題為什麼沒拿滿分？</strong><span>錯因綁定本次作答，可在跨回合報告中累積分析。</span></div>
-          <label><span>主要原因</span><select value={primaryReason ?? ""} onChange={(event) => { const next = (event.target.value || null) as ErrorReason | null; setPrimaryReasons((state) => ({ ...state, [question.question_id]: next })); void saveErrorReason(question.question_id, next, secondary); }}><option value="">尚未標記</option>{primaryErrorOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-          <div className="secondary-reason-grid">{secondaryErrorOptions.map((option) => <label key={option.value}><input type="checkbox" checked={secondary.includes(option.value)} onChange={() => toggleSecondaryReason(question.question_id, option.value)} /><span>{option.label}</span></label>)}</div>
-        </section>}
-
-        <div className="annotation-comparison-grid">
-          <section className="annotation-readonly-card">
-            <div><strong>模考標記</strong><span>{question.exam_is_starred ? "★ 模考星號" : "未加星號"}</span></div>
-            <p>{question.exam_note_text || "這回模考沒有留下筆記。"}</p>
-            <small>模考標記在交卷後鎖定，保留當時作答脈絡。</small>
+        {externalLink && <CollapsiblePanel
+          className="external-reference-collapsible"
+          eyebrow="第三方外部參考"
+          title={`來源：${externalLink.provider_name}`}
+          hint="預設收合，點擊後查看外部詳解連結"
+        >
+          <section className="external-reference-card" aria-label={`第 ${question.display_order} 題第三方外部參考`}>
+            <p>外部詳解涵蓋該卷第 {externalLink.question_start}～{externalLink.question_end} 題，開啟後請找到第 {question.question_number} 題。</p>
+            <a
+              className="external-reference-link"
+              href={externalLink.external_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              referrerPolicy="no-referrer"
+            >
+              {externalLink.provider_name}｜{externalLink.coverage_year} 年{paperTypeLabels[externalLink.paper_type]}第 {externalLink.question_start}～{externalLink.question_end} 題詳解，前往 Facebook 查看
+            </a>
+            {externalLink.link_status === "login_required" && <span className="external-reference-status">Facebook 可能要求登入。</span>}
+            <small>此連結為外部第三方內容，解析著作權及內容責任歸原發布者所有；本平台未重製或修改其內容。</small>
           </section>
-          <section className="annotation-edit-card">
-            <div className="annotation-edit-header"><strong>檢討標記</strong><button type="button" className={`star-button ${reviewStarred ? "active" : ""}`} onClick={() => toggleReviewStar(question.question_id)}>{reviewStarred ? "★ 已加入檢討星號" : "☆ 加入檢討星號"}</button></div>
-            <textarea
-              value={reviewNotes[question.question_id] ?? ""}
-              placeholder="補上檢討後的考點、法條、錯因與下次判斷方式…"
-              onChange={(event) => setReviewNotes((current) => ({ ...current, [question.question_id]: event.target.value }))}
-              onBlur={() => void saveReviewAnnotation(question.question_id, reviewStarred, reviewNotes[question.question_id] ?? "")}
-            />
-            <small>{savingQuestionId === question.question_id ? "保存中…" : "檢討標記會跨回合保留，可用來建立複習組卷。"}</small>
+        </CollapsiblePanel>}        {!question.is_correct && <CollapsiblePanel
+          className="error-diagnosis-collapsible"
+          title="這題為什麼沒拿滿分？"
+          hint={primaryReasonLabel ? `已標記：${primaryReasonLabel}` : "尚未標記錯因；點擊後新增"}
+        >
+          <section className="error-diagnosis-card">
+            <div><strong>錯因診斷</strong><span>錯因綁定本次作答，可在跨回合報告中累積分析。</span></div>
+            <label><span>主要原因</span><select value={primaryReason ?? ""} onChange={(event) => { const next = (event.target.value || null) as ErrorReason | null; setPrimaryReasons((state) => ({ ...state, [question.question_id]: next })); void saveErrorReason(question.question_id, next, secondary); }}><option value="">尚未標記</option>{primaryErrorOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+            <div className="secondary-reason-grid">{secondaryErrorOptions.map((option) => <label key={option.value}><input type="checkbox" checked={secondary.includes(option.value)} onChange={() => toggleSecondaryReason(question.question_id, option.value)} /><span>{option.label}</span></label>)}</div>
           </section>
+        </CollapsiblePanel>}
+        <div className="annotation-quick-row">
+          <div className="annotation-status">
+            <strong>模考標記</strong>
+            <span>{question.exam_is_starred ? "★ 有標記" : "沒有標記"}</span>
+          </div>
+          <button type="button" className={`star-button ${reviewStarred ? "active" : ""}`} onClick={() => toggleReviewStar(question.question_id)}>
+            {reviewStarred ? "★ 已加入檢討標記" : "☆ 加入檢討標記"}
+          </button>
         </div>
-      </article>;
+        <CollapsiblePanel
+          className="annotation-collapsible"
+          title="其他標記與筆記"
+          hint="預設收合，點擊後查看模考筆記與編輯檢討筆記"
+        >
+          <div className="annotation-comparison-grid">
+            <section className="annotation-readonly-card">
+              <div><strong>模考筆記</strong></div>
+              <p>{question.exam_note_text || "這回模考沒有留下筆記。"}</p>
+              <small>模考標記在交卷後鎖定，保留當時作答脈絡。</small>
+            </section>
+            <section className="annotation-edit-card">
+              <div className="annotation-edit-header"><strong>檢討筆記</strong></div>
+              <textarea
+                value={reviewNotes[question.question_id] ?? ""}
+                placeholder="補上檢討後的考點、法條、錯因與下次判斷方式…"
+                onChange={(event) => setReviewNotes((current) => ({ ...current, [question.question_id]: event.target.value }))}
+                onBlur={() => void saveReviewAnnotation(question.question_id, reviewStarred, reviewNotes[question.question_id] ?? "")}
+              />
+              <small>{savingQuestionId === question.question_id ? "保存中…" : "檢討標記會跨回合保留，可用來建立複習組卷。"}</small>
+            </section>
+          </div>
+        </CollapsiblePanel>      </article>;
     })}</div>
 
     <div className="actions"><Link className="button primary" href="/practice">再選一份測驗</Link><Link className="button secondary" href="/history">查看歷史紀錄</Link></div>
