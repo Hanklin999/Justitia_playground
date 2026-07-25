@@ -43,6 +43,8 @@ export default function ExamPage() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [activeElapsedSeconds, setActiveElapsedSeconds] = useState(0);
   const [paceCoachEnabled, setPaceCoachEnabled] = useState(false);
+  const [navigatorOpen, setNavigatorOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [annotationState, setAnnotationState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [confidenceState, setConfidenceState] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -112,6 +114,8 @@ export default function ExamPage() {
       setNotes(Object.fromEntries(next.questions.map((q) => [q.question_id, reviewMode ? q.review_note_text : q.exam_note_text])));
       setActiveElapsedSeconds(next.questions.reduce((sum, question) => sum + (question.active_seconds || 0), 0));
       setPaceCoachEnabled(next.attempt.attempt_mode === "subject_pool");
+      setNavigatorOpen(false);
+      setToolsOpen(false);
       setElapsedSeconds(Math.max(0, Math.floor((Date.now() - new Date(next.attempt.started_at).getTime()) / 1000)));
       if (next.attempt.is_timed && next.attempt.expires_at) {
         setRemainingSeconds(Math.max(0, Math.floor((new Date(next.attempt.expires_at).getTime() - Date.now()) / 1000)));
@@ -269,6 +273,14 @@ export default function ExamPage() {
     void saveAnnotation(currentQuestion.question_id, next, notes[currentQuestion.question_id] ?? "");
   }
 
+  function goToQuestion(index: number) {
+    setCurrentIndex(index);
+    setNavigatorOpen(false);
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 900px)").matches) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+
   function confirmSubmit() {
     const unanswered = (payload?.questions.length ?? 0) - answeredCount;
     if (window.confirm(unanswered > 0 ? `還有 ${unanswered} 題未作答，確定交卷？` : "確定交卷？")) {
@@ -319,17 +331,35 @@ export default function ExamPage() {
     </section>}
     <div className="exam-progress"><div style={{ width: `${progress}%` }} /></div>
     <main className="exam-layout">
-      <aside className="question-navigator">
-        <div className="navigator-summary"><strong>{answeredCount}</strong><span>/ {payload.questions.length} 已作答</span></div>
-        <div className="question-number-grid">
-          {payload.questions.map((question, index) => <button
-            type="button"
-            key={question.question_id}
-            className={`${answers[question.question_id] ? "answered" : ""} ${index === currentIndex ? "current" : ""} ${stars[question.question_id] ? "starred" : ""}`}
-            onClick={() => setCurrentIndex(index)}
-          >
-            {stars[question.question_id] && <span className="nav-star">★</span>}{index + 1}
-          </button>)}
+      <aside className={`question-navigator ${navigatorOpen ? "navigator-open" : "navigator-collapsed"}`}>
+        <button
+          type="button"
+          className="navigator-toggle"
+          aria-expanded={navigatorOpen}
+          aria-controls="question-navigator-body"
+          onClick={() => setNavigatorOpen((value) => !value)}
+        >
+          <span className="navigator-toggle-copy">
+            <strong>題號索引</strong>
+            <small>已作答 {answeredCount} / {payload.questions.length}</small>
+          </span>
+          <span className="navigator-toggle-action">
+            {navigatorOpen ? "收合" : "展開"}
+            <span className={`navigator-chevron ${navigatorOpen ? "open" : ""}`} aria-hidden="true">⌄</span>
+          </span>
+        </button>
+        <div className="navigator-body" id="question-navigator-body">
+          <div className="navigator-summary"><strong>{answeredCount}</strong><span>/ {payload.questions.length} 已作答</span></div>
+          <div className="question-number-grid">
+            {payload.questions.map((question, index) => <button
+              type="button"
+              key={question.question_id}
+              className={`${answers[question.question_id] ? "answered" : ""} ${index === currentIndex ? "current" : ""} ${stars[question.question_id] ? "starred" : ""}`}
+              onClick={() => goToQuestion(index)}
+            >
+              {stars[question.question_id] && <span className="nav-star">★</span>}{index + 1}
+            </button>)}
+          </div>
         </div>
       </aside>
       <section className="question-panel">
@@ -359,32 +389,52 @@ export default function ExamPage() {
             <span className="option-copy">{optionMap[choice]}</span>
           </label>)}
         </div>
-        <section className="confidence-panel">
-          <div><strong>這題有多確定？</strong><span>非必填，交卷前可修改</span></div>
-          <div className="confidence-buttons">{confidenceOptions.map((option) => <button
-            key={option.value}
+        <section className={`exam-secondary-tools ${toolsOpen ? "tools-open" : "tools-collapsed"}`}>
+          <button
             type="button"
-            disabled={!selected}
-            className={confidences[currentQuestion.question_id] === option.value ? "active" : ""}
-            onClick={() => void saveConfidence(option.value)}
-          ><strong>{option.label}</strong><small>{option.hint}</small></button>)}</div>
-        </section>
-        <div className="annotation-panel">
-          <div className="annotation-context-label">{annotationPrefix}標記</div>
-          <button type="button" className={`star-button ${stars[currentQuestion.question_id] ? "active" : ""}`} onClick={toggleStar}>
-            {stars[currentQuestion.question_id] ? `★ 已加入${annotationPrefix}星號` : `☆ 加入${annotationPrefix}星號`}
+            className="secondary-tools-toggle"
+            aria-expanded={toolsOpen}
+            aria-controls="exam-secondary-tools-body"
+            onClick={() => setToolsOpen((value) => !value)}
+          >
+            <span className="secondary-tools-copy">
+              <strong>作答輔助</strong>
+              <small>信心程度・{annotationPrefix}標記與筆記{stars[currentQuestion.question_id] ? "・已標記 ★" : ""}</small>
+            </span>
+            <span className="secondary-tools-action">
+              {toolsOpen ? "收合" : "展開"}
+              <span className={`navigator-chevron ${toolsOpen ? "open" : ""}`} aria-hidden="true">⌄</span>
+            </span>
           </button>
-          <label>
-            <span>{annotationPrefix}筆記</span>
-            <textarea
-              value={notes[currentQuestion.question_id] ?? ""}
-              placeholder={isReviewAttempt ? "整理考點、法條與這次檢討後的結論…" : "記下作答當下的疑問、易錯點或待查法條…"}
-              onChange={(event) => setNotes((current) => ({ ...current, [currentQuestion.question_id]: event.target.value }))}
-              onBlur={() => void saveAnnotation(currentQuestion.question_id, Boolean(stars[currentQuestion.question_id]), notes[currentQuestion.question_id] ?? "")}
-            />
-          </label>
-          <small>{isReviewAttempt ? "檢討標記會跨回合保留，之後可用來建立複習組卷。" : "交卷後這份模考標記會鎖定；後續新增內容會寫入檢討標記。"}</small>
-        </div>
+          <div className="secondary-tools-body" id="exam-secondary-tools-body">
+            <section className="confidence-panel">
+              <div><strong>這題有多確定？</strong><span>非必填，交卷前可修改</span></div>
+              <div className="confidence-buttons">{confidenceOptions.map((option) => <button
+                key={option.value}
+                type="button"
+                disabled={!selected}
+                className={confidences[currentQuestion.question_id] === option.value ? "active" : ""}
+                onClick={() => void saveConfidence(option.value)}
+              ><strong>{option.label}</strong><small>{option.hint}</small></button>)}</div>
+            </section>
+            <div className="annotation-panel">
+              <div className="annotation-context-label">{annotationPrefix}標記</div>
+              <button type="button" className={`star-button ${stars[currentQuestion.question_id] ? "active" : ""}`} onClick={toggleStar}>
+                {stars[currentQuestion.question_id] ? `★ 已加入${annotationPrefix}星號` : `☆ 加入${annotationPrefix}星號`}
+              </button>
+              <label>
+                <span>{annotationPrefix}筆記</span>
+                <textarea
+                  value={notes[currentQuestion.question_id] ?? ""}
+                  placeholder={isReviewAttempt ? "整理考點、法條與這次檢討後的結論…" : "記下作答當下的疑問、易錯點或待查法條…"}
+                  onChange={(event) => setNotes((current) => ({ ...current, [currentQuestion.question_id]: event.target.value }))}
+                  onBlur={() => void saveAnnotation(currentQuestion.question_id, Boolean(stars[currentQuestion.question_id]), notes[currentQuestion.question_id] ?? "")}
+                />
+              </label>
+              <small>{isReviewAttempt ? "檢討標記會跨回合保留，之後可用來建立複習組卷。" : "交卷後這份模考標記會鎖定；後續新增內容會寫入檢討標記。"}</small>
+            </div>
+          </div>
+        </section>
         {currentQuestion.review_status !== "verified_text_answer" && <p className="review-note">此題由官方 PDF 自動擷取，尚待人工逐題複核。</p>}
         {errorMessage && <p className="error-message">{errorMessage}</p>}
         <div className="question-actions">
