@@ -409,7 +409,7 @@ export default function ExamPage() {
           >
             <span className="secondary-tools-copy">
               <strong>作答輔助</strong>
-              <small>信心程度・{annotationPrefix}標記與筆記{stars[currentQuestion.question_id] ? "・已標記 ★" : ""}</small>
+              <small>信心程度・{annotationPrefix}筆記</small>
             </span>
             <span className="secondary-tools-action">
               {toolsOpen ? "收合" : "展開"}
@@ -429,9 +429,6 @@ export default function ExamPage() {
             </section>
             <div className="annotation-panel">
               <div className="annotation-context-label">{annotationPrefix}標記</div>
-              <button type="button" className={`star-button ${stars[currentQuestion.question_id] ? "active" : ""}`} onClick={toggleStar}>
-                {stars[currentQuestion.question_id] ? `★ 已加入${annotationPrefix}星號` : `☆ 加入${annotationPrefix}星號`}
-              </button>
               <label>
                 <span>{annotationPrefix}筆記</span>
                 <textarea
@@ -448,6 +445,16 @@ export default function ExamPage() {
         {currentQuestion.review_status !== "verified_text_answer" && <p className="review-note">此題由官方 PDF 自動擷取，尚待人工逐題複核。</p>}
         {errorMessage && <p className="error-message">{errorMessage}</p>}
         <div className="question-actions">
+          <button
+            type="button"
+            className={`star-inline-button ${stars[currentQuestion.question_id] ? "active" : ""}`}
+            aria-pressed={stars[currentQuestion.question_id] ? "true" : "false"}
+            aria-label={stars[currentQuestion.question_id] ? `移除${annotationPrefix}星號` : `加入${annotationPrefix}星號`}
+            onClick={toggleStar}
+          >
+            <span className="star-inline-glyph" aria-hidden="true">{stars[currentQuestion.question_id] ? "★" : "☆"}</span>
+            <span className="star-inline-label">星號</span>
+          </button>
           <button type="button" className="button secondary" disabled={currentIndex === 0} onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))}>上一題</button>
           {currentIndex < payload.questions.length - 1
             ? <button type="button" className="button primary" onClick={() => setCurrentIndex((index) => Math.min(payload.questions.length - 1, index + 1))}>下一題</button>
