@@ -7,6 +7,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
 import type { AnswerChoice, AttemptPayload, ConfidenceLevel } from "@/lib/types";
 
 const allChoices: AnswerChoice[] = ["A", "B", "C", "D", "E"];
+const SAVE_TIMEOUT_MS = 10000;
 const confidenceOptions: Array<{ value: ConfidenceLevel; label: string; hint: string }> = [
   { value: "confident", label: "確定", hint: "我能說明理由" },
   { value: "unsure", label: "不確定", hint: "在兩個選項間猶豫" },
@@ -22,6 +23,8 @@ function formatSeconds(totalSeconds: number) {
     ? `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
     : `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
+
+type SaveOutcome = { kind: "settled"; message: string | null } | { kind: "timeout" };
 
 function normalizeAnswer(value: string) {
   return [...new Set(value.split("").filter((x): x is AnswerChoice => allChoices.includes(x as AnswerChoice)))]
@@ -199,14 +202,21 @@ export default function ExamPage() {
       setConfidences((current) => ({ ...current, [currentQuestion.question_id]: null }));
     }
     setSaveState("saving");
-    const { error } = await getSupabaseBrowserClient().rpc("save_attempt_answer", {
+    const request = getSupabaseBrowserClient().rpc("save_attempt_answer", {
       p_attempt_id: attemptId,
       p_question_id: currentQuestion.question_id,
       p_selected_answer: normalized || null,
     });
-    if (error) {
+    const outcome = await Promise.race([
+      request.then(({ error }): SaveOutcome => ({ kind: "settled", message: error ? error.message : null })),
+      new Promise<SaveOutcome>((resolve) => window.setTimeout(() => resolve({ kind: "timeout" }), SAVE_TIMEOUT_MS)),
+    ]);
+    if (outcome.kind === "timeout") {
       setSaveState("error");
-      setErrorMessage(`答案保存失敗：${error.message}`);
+      setErrorMessage("答案保存逾時，請確認網路連線後重新點選該選項。仍可交卷。");
+    } else if (outcome.message) {
+      setSaveState("error");
+      setErrorMessage(`答案保存失敗：${outcome.message}`);
     } else {
       setSaveState("saved");
       window.setTimeout(() => setSaveState("idle"), 1200);

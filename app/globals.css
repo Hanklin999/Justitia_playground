@@ -1099,3 +1099,65 @@ button:disabled { cursor: not-allowed; background: #e6ebf2 !important; color: #7
     flex-direction: column;
   }
 }
+
+/* v3.12.5: reachable exam footer actions on phones */
+.exam-shell {
+  --exam-footer-height: 56px;
+}
+
+.text-button:disabled {
+  opacity: .5;
+  text-decoration: none;
+}
+
+@media (max-width: 900px) {
+  .exam-shell {
+    --exam-footer-height: 62px;
+  }
+
+  .exam-footer {
+    min-height: var(--exam-footer-height);
+    gap: 10px;
+    padding: 8px 14px calc(8px + env(safe-area-inset-bottom, 0px));
+    z-index: 25;
+  }
+
+  .exam-footer > span {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .exam-footer > div {
+    flex: 0 0 auto;
+    gap: 8px;
+  }
+
+  .exam-footer .text-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--white);
+    white-space: nowrap;
+    touch-action: manipulation;
+  }
+
+  .exam-footer .text-button.danger {
+    border-color: #eec3c3;
+    background: #fff6f6;
+  }
+
+  .exam-layout {
+    padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .question-panel > .question-actions {
+    bottom: calc(var(--exam-footer-height) + env(safe-area-inset-bottom, 0px) + 10px);
+  }
+}
