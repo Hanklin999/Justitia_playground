@@ -1,0 +1,32 @@
+[
+  {
+    "label": "result types",
+    "old": "type ResultFilter = \"all\" | \"wrong\" | \"unanswered\" | \"correct\" | \"exam_starred\" | \"review_starred\";\n",
+    "new": "type ResultFilter = \"all\" | \"wrong\" | \"unanswered\" | \"correct\" | \"exam_starred\" | \"review_starred\";\ntype ExternalExplanationLink = {\n  link_id: string;\n  question_id: string;\n  provider_name: string;\n  external_url: string;\n  coverage_year: number;\n  paper_type: \"civil\" | \"criminal\" | \"public\" | \"commercial\";\n  question_start: number;\n  question_end: number;\n  last_verified_at: string;\n  link_status: \"active\" | \"login_required\";\n};\nconst paperTypeLabels: Record<ExternalExplanationLink[\"paper_type\"], string> = { civil: \"民事法\", criminal: \"刑事法\", public: \"公法\", commercial: \"商事法\" };\n"
+  },
+  {
+    "label": "external state",
+    "old": "const [yearSummaries, setYearSummaries] = useState<YearSummary[]>([]);\n",
+    "new": "const [yearSummaries, setYearSummaries] = useState<YearSummary[]>([]);\nconst [externalLinks, setExternalLinks] = useState<Record<string, ExternalExplanationLink>>({});\n"
+  },
+  {
+    "label": "external RPC",
+    "old": "const [{ data, error }, { data: summaryData }] = await Promise.all([\n  supabase.rpc(\"get_attempt_result\", { p_attempt_id: attemptId }),\n  supabase.rpc(\"list_my_year_summaries\"),\n]);\n",
+    "new": "const [{ data, error }, { data: summaryData }, { data: externalData, error: externalError }] = await Promise.all([\n  supabase.rpc(\"get_attempt_result\", { p_attempt_id: attemptId }),\n  supabase.rpc(\"list_my_year_summaries\"),\n  supabase.rpc(\"list_attempt_external_explanations\", { p_attempt_id: attemptId }),\n]);\n"
+  },
+  {
+    "label": "external result mapping",
+    "old": "setYearSummaries((summaryData ?? []) as YearSummary[]);\n",
+    "new": "setYearSummaries((summaryData ?? []) as YearSummary[]);\nif (externalError) {\n  console.error(\"External explanation links are unavailable\", externalError);\n  setExternalLinks({});\n} else {\n  const rows = (externalData ?? []) as ExternalExplanationLink[];\n  setExternalLinks(Object.fromEntries(rows.map((row) => [row.question_id, row])));\n}\n"
+  },
+  {
+    "label": "question external lookup",
+    "old": "const secondary = secondaryReasons[question.question_id] ?? [];\n",
+    "new": "const secondary = secondaryReasons[question.question_id] ?? [];\nconst externalLink = externalLinks[question.question_id];\n"
+  },
+  {
+    "label": "external card",
+    "old": "{!question.is_correct && <section className=\"error-diagnosis-card\">\n",
+    "new": "{externalLink && <section className=\"external-reference-card\" aria-label={`第 ${question.display_order} 題第三方外部參考`}>\n  <div className=\"external-reference-kicker\">第三方外部參考</div>\n  <strong>來源：{externalLink.provider_name}</strong>\n  <p>外部詳解涵蓋該卷第 {externalLink.question_start}～{externalLink.question_end} 題，開啟後請找到第 {question.question_number} 題。</p>\n  <a\n    className=\"external-reference-link\"\n    href={externalLink.external_url}\n    target=\"_blank\"\n    rel=\"noopener noreferrer\"\n    referrerPolicy=\"no-referrer\"\n  >\n    {externalLink.provider_name}｜{externalLink.coverage_year} 年{paperTypeLabels[externalLink.paper_type]}第 {externalLink.question_start}～{externalLink.question_end} 題詳解，前往 Facebook 查看\n  </a>\n  {externalLink.link_status === \"login_required\" && <span className=\"external-reference-status\">Facebook 可能要求登入。</span>}\n  <small>此連結為外部第三方內容，解析著作權及內容責任歸原發布者所有；本平台未重製或修改其內容。</small>\n</section>}\n{!question.is_correct && <section className=\"error-diagnosis-card\">\n"
+  }
+]

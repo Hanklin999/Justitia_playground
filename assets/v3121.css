@@ -1,0 +1,14 @@
+/* v3.12.1: third-party external explanations */
+.release-meta { margin: -8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.external-reference-card { display: grid; gap: 8px; margin-top: 16px; padding: 15px; border: 1px solid var(--line); border-radius: 13px; background: var(--blue-050); }
+.external-reference-kicker { color: var(--blue-700); font-size: 12px; font-weight: 800; letter-spacing: .04em; }
+.external-reference-card > strong { color: var(--blue-950); }
+.external-reference-card p { margin: 0; color: var(--text); line-height: 1.65; }
+.external-reference-link { display: inline-flex; width: fit-content; max-width: 100%; align-items: center; gap: 6px; color: var(--blue-700); font-weight: 800; line-height: 1.6; overflow-wrap: anywhere; text-decoration: underline; text-underline-offset: 3px; touch-action: manipulation; }
+.external-reference-link::after { content: "↗"; flex: 0 0 auto; }
+.external-reference-link:focus-visible { outline: 3px solid rgba(31, 93, 168, .2); outline-offset: 3px; border-radius: 4px; }
+.external-reference-status { width: fit-content; border-radius: 999px; padding: 4px 8px; background: var(--amber-100); color: var(--amber-700); font-size: 12px; font-weight: 700; }
+.external-reference-card small { color: var(--muted); line-height: 1.55; }
+@media (max-width: 700px) {
+  .external-reference-link { width: 100%; justify-content: space-between; padding: 10px 0; }
+}
