@@ -7,6 +7,19 @@ import { getSupabaseBrowserClient } from "@/lib/supabase-browser";
 import type { AnswerChoice, AttemptResult, ConfidenceLevel, ErrorReason, ResultQuestion, YearSummary } from "@/lib/types";
 
 type ResultFilter = "all" | "wrong" | "unanswered" | "correct" | "exam_starred" | "review_starred";
+type ExternalExplanationLink = {
+  link_id: string;
+  question_id: string;
+  provider_name: string;
+  external_url: string;
+  coverage_year: number;
+  paper_type: "civil" | "criminal" | "public" | "commercial";
+  question_start: number;
+  question_end: number;
+  last_verified_at: string;
+  link_status: "active" | "login_required";
+};
+const paperTypeLabels: Record<ExternalExplanationLink["paper_type"], string> = { civil: "民事法", criminal: "刑事法", public: "公法", commercial: "商事法" };
 const allChoices: AnswerChoice[] = ["A", "B", "C", "D", "E"];
 const primaryErrorOptions: Array<{ value: ErrorReason; label: string }> = [
   { value: "unfamiliar_rule", label: "不熟悉規則" },
@@ -46,6 +59,7 @@ export default function ResultPage() {
   const attemptId = params.attemptId;
   const [result, setResult] = useState<AttemptResult | null>(null);
   const [yearSummaries, setYearSummaries] = useState<YearSummary[]>([]);
+  const [externalLinks, setExternalLinks] = useState<Record<string, ExternalExplanationLink>>({});
   const [errorMessage, setErrorMessage] = useState("");
   const [filter, setFilter] = useState<ResultFilter>("all");
   const [reviewStars, setReviewStars] = useState<Record<string, boolean>>({});
@@ -61,9 +75,10 @@ export default function ResultPage() {
       router.replace("/login");
       return;
     }
-    const [{ data, error }, { data: summaryData }] = await Promise.all([
+    const [{ data, error }, { data: summaryData }, { data: externalData, error: externalError }] = await Promise.all([
       supabase.rpc("get_attempt_result", { p_attempt_id: attemptId }),
       supabase.rpc("list_my_year_summaries"),
+      supabase.rpc("list_attempt_external_explanations", { p_attempt_id: attemptId }),
     ]);
     if (error) {
       setErrorMessage(`無法讀取成績：${error.message}`);
@@ -76,6 +91,13 @@ export default function ResultPage() {
     setPrimaryReasons(Object.fromEntries(next.questions.map((question) => [question.question_id, question.primary_error_reason])));
     setSecondaryReasons(Object.fromEntries(next.questions.map((question) => [question.question_id, question.secondary_error_reasons ?? []])));
     setYearSummaries((summaryData ?? []) as YearSummary[]);
+    if (externalError) {
+      console.error("External explanation links are unavailable", externalError);
+      setExternalLinks({});
+    } else {
+      const rows = (externalData ?? []) as ExternalExplanationLink[];
+      setExternalLinks(Object.fromEntries(rows.map((row) => [row.question_id, row])));
+    }
   }
 
   useEffect(() => { void load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -254,6 +276,7 @@ export default function ResultPage() {
       const reviewStarred = Boolean(reviewStars[question.question_id]);
       const primaryReason = primaryReasons[question.question_id] ?? null;
       const secondary = secondaryReasons[question.question_id] ?? [];
+      const externalLink = externalLinks[question.question_id];
       return <article id={`question-${question.question_id}`} className={`result-question ${question.is_correct ? "correct" : "incorrect"}`} key={question.question_id}>
         <div className="result-question-header"><strong>第 {question.display_order} 題 · {question.subject_primary}{question.subsubject_primary !== "未分類" ? `／${question.subsubject_primary}` : ""}</strong><span>{question.is_bonus ? "送分" : question.is_correct ? "滿分" : question.is_unanswered ? "未作答" : partial ? "部分得分" : "答錯"}</span></div>
         <p className="result-question-text">{question.question_text}</p>
@@ -264,6 +287,22 @@ export default function ResultPage() {
         })}</div>
         <div className="answer-comparison"><span>你的答案：<strong>{selected || "未作答"}</strong></span><span>可接受答案：<strong>{question.is_bonus ? "本題送分" : accepted.join("／")}</strong></span><span>得分：<strong>{question.earned_points} / {question.question_points}</strong></span><span>本題約 {formatDuration(question.active_seconds)}</span>{question.confidence_level && <span>信心：<strong>{confidenceLabels[question.confidence_level]}</strong></span>}{question.answer_revision_count > 1 && <span>修改答案：<strong>{question.answer_revision_count - 1} 次</strong></span>}</div>
 
+        {externalLink && <section className="external-reference-card" aria-label={`第 ${question.display_order} 題第三方外部參考`}>
+          <div className="external-reference-kicker">第三方外部參考</div>
+          <strong>來源：{externalLink.provider_name}</strong>
+          <p>外部詳解涵蓋該卷第 {externalLink.question_start}～{externalLink.question_end} 題，開啟後請找到第 {question.question_number} 題。</p>
+          <a
+            className="external-reference-link"
+            href={externalLink.external_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            referrerPolicy="no-referrer"
+          >
+            {externalLink.provider_name}｜{externalLink.coverage_year} 年{paperTypeLabels[externalLink.paper_type]}第 {externalLink.question_start}～{externalLink.question_end} 題詳解，前往 Facebook 查看
+          </a>
+          {externalLink.link_status === "login_required" && <span className="external-reference-status">Facebook 可能要求登入。</span>}
+          <small>此連結為外部第三方內容，解析著作權及內容責任歸原發布者所有；本平台未重製或修改其內容。</small>
+        </section>}
         {!question.is_correct && <section className="error-diagnosis-card">
           <div><strong>這題為什麼沒拿滿分？</strong><span>錯因綁定本次作答，可在跨回合報告中累積分析。</span></div>
           <label><span>主要原因</span><select value={primaryReason ?? ""} onChange={(event) => { const next = (event.target.value || null) as ErrorReason | null; setPrimaryReasons((state) => ({ ...state, [question.question_id]: next })); void saveErrorReason(question.question_id, next, secondary); }}><option value="">尚未標記</option>{primaryErrorOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>

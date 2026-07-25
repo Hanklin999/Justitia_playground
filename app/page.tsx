@@ -3,9 +3,10 @@ import Link from "next/link";
 export default function HomePage() {
   return (
     <section className="hero container">
-      <div className="eyebrow">ROC 105–114</div>
+      <div className="eyebrow">105-114 司律一試備考工具</div>
       <h1>Justitia&apos;s playground</h1>
-      <p className="lead">司律陪考資料庫</p>
+      <p className="lead">司律陪考資料庫 | 攻克國考有如神助</p>
+      <p className="release-meta">v.3.12.1，last updated 2026/07/25 12:34:33 (UTC+8)</p>
       <div className="actions">
         <Link className="button primary" href="/practice">開始刷題</Link>
         <Link className="button secondary" href="/history">查看作答紀錄</Link>

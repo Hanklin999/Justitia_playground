@@ -1,8 +1,15 @@
-# Justitia's playground v3.12.0
+# Justitia's playground v3.12.1
 
 > 司律陪考資料庫
 
 司法官／律師第一試刷題、正式模考、節奏診斷與間隔複習平台。題庫涵蓋民國 105–114 年考選部官方考古題，共 40 卷、2,968 題。
+
+## v3.12.1 重點
+
+- 首頁更新產品小標、副標與版本時間。
+- 110–113 年檢討題目依年度、卷別與原始題號顯示全人法學中心第三方外部參考。
+- 僅提供新分頁連結與來源聲明；不嵌入、抓取、OCR、摘要或修改第三方內容。
+- 外部網址、驗證時間與狀態由 Supabase 管理，更新網址不需重新部署。
 
 ## v3.12.0 重點
 
@@ -40,12 +47,12 @@
 
 ## Supabase 升級
 
-既有 v3.1.0 資料庫依序執行：
+既有 v3.12.0 資料庫依序執行：
 
-1. `supabase/sql_editor_v3/26_v3_12_pacing_learning.sql`
-2. `supabase/sql_editor_v3/27_verify_v3_12.sql`
+1. `supabase/sql_editor_v3/28_v3_12_1_external_explanations.sql`
+2. `supabase/sql_editor_v3/29_verify_v3_12_1.sql`
 
-不需要重跑題庫 seed。詳細說明：`supabase/V3_12_UPGRADE.md`。
+若從 v3.1.0 升級，請先完成 `26`、`27`，再執行 `28`、`29`。不需要重跑題庫 seed。詳細說明：`supabase/V3_12_1_UPGRADE.md`。
 
 ## 本機驗證
 
